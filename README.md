@@ -1,4 +1,4 @@
-## My Project
+## Satellite Communications Analytics on AWS
 
 TODO: Fill this README out!
 
