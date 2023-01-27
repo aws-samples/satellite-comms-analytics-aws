@@ -1,0 +1,34 @@
+{
+   "datetime": "{{date.utc}}",
+   "remoteId": "{{random.arrayElement(
+			["B3010","B3256","C1710","C4432","C5510"]
+		)}}",
+   "beamId": 107,
+   "beamName": "SES15-S17",
+   "satLong": -129.2,
+   "fwdModCodId": {{random.weightedArrayElement(
+       {
+	"weights": [0.7,0.1,0.1,0.1],
+        "data": [10, 11, 12, 13]
+       }
+   )}},
+   "fwdSNR": {{random.number(
+       {
+	"min":8.0,
+	"max":12.0,
+        "precision": 0.1
+       }
+   )}},
+   "packetsLost": {{random.number(
+       {
+	"min":0,
+	"max":10
+       }
+   )}},
+   "latitude": 40.7,
+   "longitude": -111.9,
+   "rxFreq": 12500750,
+   "txFreq": 14010500,
+   "fwdBitRate": 20.0
+
+}
