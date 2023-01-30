@@ -16,7 +16,8 @@ One of the key goals of this SatCom assets repository is to leverage AWS Serverl
 * Athena
 * QuickSight
 * Opensearch
-* Sagemaker
+* Sagemaker Studio
+* Sagemaker Serverless Inference
 * Amazon S3
 * Cloudformation templates
 
