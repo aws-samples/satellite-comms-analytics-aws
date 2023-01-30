@@ -6,6 +6,9 @@ It is intended to leverage AWS Serverless Analytics to show how to get Insights 
 e.g. SNR, Modulataion & Coding Rates. Additionally ML (Sagemaker) is used to detect anomalies.
 
 ### AWS Technologies used
+
+One of the key goals of this SatCom assets repository is to leverage AWS Serverless Analytics
+
 * Kinesis Data Streams
 * Kinesis Firehose
 * Lambda
