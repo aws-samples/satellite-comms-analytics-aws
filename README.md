@@ -9,7 +9,7 @@ e.g. SNR, Modulataion & Coding Rates. Additionally ML (Sagemaker) is used to det
 
 One of the key goals of this SatCom assets repository is to leverage AWS Serverless Analytics
 
-* Kinesis Data Streams
+* Kinesis Data Streams 
 * Kinesis Firehose
 * Lambda
 * Glue
