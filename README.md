@@ -48,5 +48,5 @@ to keep the Blog post smaller.
 
 This figure represents a Reference Architecture for Real-Time streaming of metrics to [Amazon OpenSearch](https://aws.amazon.com/opensearch-service/), an open source, distributed search and analytics suite derived from Elasticsearch. Widgets such as heat-maps and geo-mapping can be added via the popular Kibana user interface to rapidly create rich Business Analytics dashboards
 
-To deploy this solution in your own AWS account, click “Create stack (with new resources)” in the CloudFormation console. Next, download the streaming_kinesis_lambda_osearch.yaml  template from the GitHub repository, select “Upload a template file” & browse to the yaml file. 
+To deploy this solution in your own AWS account, click “Create stack (with new resources)” in the AWS CloudFormation console. Next, download  [streaming_kinesis_lambda_osearch.yaml](./streaming_kinesis_lambda_osearch.yaml) template, select “Upload a template file” & browse to the yaml file. 
 The parameters for this CloudFormation template are as shown in Figure 12: -
