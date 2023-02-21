@@ -65,6 +65,16 @@ The SatComAssetsS3Bucket can/should be the same as the assets bucket used in Pip
   
 There is one additional factor to be considered. The Lambda runtime cannot contain all possible libraries and dependencies a given function may need. In order to submit indices to OpenSearch via the AWS Python SDK we need the requests_aws4auth and the opensearchpy modules. [Lambda layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html) provide a convenient way to package these libraries via a .zip file archive. 
   
+For simplicity we bundle both of these modules into a single .zip layer as follows in a Linux terminal: -
 
-
-  
+```
+[>] mkdir requests_opensearchpy_layer
+[>] cd requests_opensearchpy_layer/
+[>] mkdir python
+[>] pip install --target ./python requests
+[>] pip install --target ./python requests_aws4auth
+[>] pip install --target ./python opensearch-py
+[>] zip -r requests_opensearchpy_layer.zip python
+[>] aws lambda publish-layer-version --layer-name requests_opensearchpy_layer --zip-file fileb://requests_opensearchpy_layer.zip --compatible-runtimes python3.8 python3.9 --region <YOUR-AWS-REGION>
+[>] aws s3 cp requests_opensearchpy_layer.zip s3://<YOUR-S3-ASSETS-BUCKET>/kds-scripts/
+```
