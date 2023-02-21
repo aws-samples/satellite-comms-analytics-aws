@@ -57,4 +57,14 @@ The parameters for this CloudFormation template are as shown in the table below:
 | OpenSearchAllowedIPs |         | Comma-delimited list of IP addresses accessing OpenSearch domain |
 | SatComAssetsS3Bucket |         | Holds helper assets eg Glue python transforms |
 
+The Lambda function is referenced in the same fashion as Pipeline 1, via a Zip file in an S3 bucket. Simply zip up the python function [here](./kds-scripts/lambda_function.py) and add it to the S3 bucket similar to the kds-scripts/<name-of-file>.zip parameter supplied above.
 
+The OpenSearchAllowedIPs parameter can simply be your public IPv4 IP as detected by https://www.whatismyip.com/. Bear in mind this IP can change based on your Internet Service Provider (ISP) hence you can enter several IPs or CIDR ranges via a comma-delimited list. 
+
+The SatComAssetsS3Bucket can/should be the same as the assets bucket used in Pipeline 1. 
+  
+There is one additional factor to be considered. The Lambda runtime cannot contain all possible libraries and dependencies a given function may need. In order to submit indices to OpenSearch via the AWS Python SDK we need the requests_aws4auth and the opensearchpy modules. [Lambda layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html) provide a convenient way to package these libraries via a .zip file archive. 
+  
+
+
+  
