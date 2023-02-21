@@ -20,6 +20,7 @@ One of the key goals of this SatCom assets repository is to leverage AWS Serverl
 * Sagemaker Studio
 * Sagemaker Serverless Inference
 * Amazon S3
+* Amazon CloudWatch
 * Cloudformation templates
 
 ## Security
