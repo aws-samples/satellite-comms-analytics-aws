@@ -103,5 +103,7 @@ Click on the “Indices” tab – you should see a Document count corresponding
 
 Finally we are ready to construct our Satellite Communications Analytics OpenSearch dashboard. Click on the OpenSearch dashboards URL. The dashboard in Figure 11 can be created relatively quickly. For example to create the Number of Data points visual, click “Visualize” in the left hand menu -> Create visualization -> Metric -> select the index we created. It will then show the Count of samples. To create the Geo visualization select Coordinate map and configure the Metrics of interest against the Geo coordinates location field e.g. 
 
+![Capture_Geo_osearch_viz](https://user-images.githubusercontent.com/122999933/220427755-81260119-1c51-490f-9f8c-26690fffffb6.PNG)
+
 
  
