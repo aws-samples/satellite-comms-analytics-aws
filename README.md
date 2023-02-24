@@ -17,7 +17,7 @@ One of the key goals of this SatCom assets repository is to leverage AWS Serverl
 * Athena
 * QuickSight
 * Opensearch
-* Sagemaker Studio
+* Sagemaker Studio Notebook
 * Sagemaker Serverless Inference
 * Amazon S3
 * Amazon CloudWatch
@@ -105,5 +105,41 @@ Finally we are ready to construct our Satellite Communications Analytics OpenSea
 
 ![Capture_Geo_osearch_viz](https://user-images.githubusercontent.com/122999933/220427755-81260119-1c51-490f-9f8c-26690fffffb6.PNG)
 
+### Pipeline 3 – Detect Anomalies using Amazon SageMaker Random Cut Forest
+Pipeline 3 demonstrates using the SageMaker [Random Cut Forest Algorithm](https://docs.aws.amazon.com/sagemaker/latest/dg/randomcutforest.html) to detect anomalous SNR values within our dataset. The algorithm is deployed to a [SageMaker Serverless Inference](https://docs.aws.amazon.com/sagemaker/latest/dg/serverless-endpoints.html) Endpoint. The detected SNR value anomalies are written to S3 for archival. The following figure represents the architecture used in this pipeline
 
+![pipeline_3_architecture](https://user-images.githubusercontent.com/123971998/221263219-c471a753-dd33-43ef-a5aa-345093f198d3.png)
+
+The environment which will be used to run the Jupyter [Notebook](https://github.com/aws-samples/satellite-comms-analytics-aws/blob/main/sagemaker-notebook/random_cut_forest_workshop.ipynb) file is SageMaker Studio. [SageMaker Studio](https://aws.amazon.com/sagemaker/studio/) is a web-based Integrated Development Environment (IDE) to prepare data, build, train, deploy, and monitor your machine learning models. The first time opening SageMaker Studio will require users to create a Domain and an Execution role. Once SageMaker Studio is configured and open, we import the Notebook file and specify an instance type of ml.t3.medium as seen in the following Figure.
+
+![pipeline_3_notebook_selection](https://user-images.githubusercontent.com/123971998/221265997-f20f2eff-cdbc-4eef-b5d7-3e1180575729.png)
+  
+Within the Notebook file, the first thing which needs to be validated is [SageMaker Execution Role](https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-roles.html) permissions. The role needs to be able to read from the S3 Output Bucket from the previous section. Additionally, write permissions are required for the SageMaker Session default bucket.
+
+Next, we will reference the S3 Output Bucket for import. The Glue transformed data is represented as timeseries data configured in JSON lines files. Depending on how much data was generated using the Kinesis Data Generator, there may be multiple part files. We need to specify BUCKET_NAME and BUCKET_PREFIX displayed in the following code block. It’s important to note the prefix path will point to the location of the files so that multiple files at that location can be imported.
+  ```
+  # *** Edit the following bucket name and prefix to read the json lines part files *** 
+downloaded_data_bucket = "BUCKET_NAME"
+# To read multiple part files, specify the prefix leading to the files, ex. "year=2022/month=12/day=21/hour=16/"
+downloaded_data_prefix = "BUCKET_PREFIX"
+```
+After importing the data, we plot the SNR value timeseries data which is displayed in the following Figure. We expect anomalies to be when the SNR value drops to -100. To further prepare the data, we convert to a [Pandas Dataframe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html). This conversion simplifies the input to the SageMaker Random Cut Forest Algorithm. The parameters have been set for the given example; however, they will need to be configured to reflect the data when applied to other datasets. As seen in the following code block, we call the fit function while passing in the dataset. This initiates a [SageMaker Training Job](https://docs.aws.amazon.com/sagemaker/latest/dg/how-it-works-training.html).
+  
+![pipeline_3_value_plot](https://user-images.githubusercontent.com/123971998/221266473-a75f78fe-eb6c-4a0f-a280-05915a4c1e0e.png)
+```
+# automatically upload the training data to S3 and run the training job
+rcf.fit(rcf.record_set(satcom_data.value.to_numpy().reshape(-1, 1)))  
+```
+  
+After the Training Job is complete, we deploy the model to a Serverless Inference Endpoint. Serverless Inference allows you to easily deploy Machine Learning models without configuring or managing any of the underlying infrastructure. SageMaker will automatically provision, scale, and turn off compute capacity based on the volume of inference request. This means you pay only for the duration of running the inference code and amount of data processed, not for idle periods. For this example, we have allocated 2048MB and specified a max concurrency of 5. See the following resource for more information about [configuring Serverless Inference](https://docs.aws.amazon.com/sagemaker/latest/dg/serverless-endpoints.html#serverless-endpoints-how-it-works-memory). 
+
+Next, we use the trained model to identify anomalies in the dataset. Shown in the following code block, we call the predict function which generates an anomaly score for the SNR values. We overlay the anomaly scores against the SNR values which shows a jump in anomaly score value when the SNR value drops to -100. This is visualized in the following Figure. We can set a threshold based on Standard Deviation and add to our plot to visualize exactly where anomalies are.
+```
+results = rcf_inference.predict(satcom_data_numpy)  
+```  
+![pipeline_3_value_anomaly_plot](https://user-images.githubusercontent.com/123971998/221266667-a70a8d7d-6087-410c-830c-2dc0a2f61b32.png)
+  
+Lastly, we write the anomalies to S3 as JSON lines format as seen in the following Figure. For an additional exercise, [S3 Event Notifications](https://docs.aws.amazon.com/AmazonS3/latest/userguide/NotificationHowTo.html) can be configured so that downstream applications or alerts can be triggered to execute when the anomalies are written to S3. Additional future exercises might include building on the SageMaker Serverless Inference Endpoint by [integrating with API Gateway and Lambda](https://aws.amazon.com/blogs/machine-learning/call-an-amazon-sagemaker-model-endpoint-using-amazon-api-gateway-and-aws-lambda/). The last step in the Notebook involves cleaning up the SageMaker Serverless Inference Endpoint.
  
+![pipeline_3_anomalies](https://user-images.githubusercontent.com/123971998/221267398-37414827-8471-412c-9d95-17fdbf1ad8e5.png)
+
