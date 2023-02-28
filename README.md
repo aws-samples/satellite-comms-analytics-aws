@@ -10,18 +10,17 @@ used to detect anomalies.
 
 One of the key goals of this SatCom assets repository is to leverage AWS Serverless Analytics
 
-* Kinesis Data Streams 
-* Kinesis Firehose
-* Lambda
-* Glue
-* Athena
-* QuickSight
-* Opensearch
-* Sagemaker Studio Notebook
-* Sagemaker Serverless Inference
+* Amazon Kinesis Data Streams 
+* Amazon Kinesis Data Firehose
+* AWS Lambda
+* AWS Glue
+* Amazon Athena
+* Amazon QuickSight
+* Amazon Opensearch Service
+* Amazon Sagemaker
 * Amazon S3
 * Amazon CloudWatch
-* Cloudformation templates
+* AWS CloudFormation
 
 ## Security
 
