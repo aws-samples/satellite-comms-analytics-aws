@@ -34,7 +34,7 @@ This library is licensed under the MIT-0 License. See the LICENSE file.
 
 This github repository and associated Blog contains artifacts for 3 pipelines: -
 * Streaming to a data lake, ETL transformation, Business Intelligence
-* Real-Time Monitoring in Amazon OpenSearch
+* Real-Time Monitoring and geo-mapping in Amazon OpenSearch
 * Train a model with SageMaker and deploy a Serverless Inference
 
 The first pipeline is fully described in the Blog post, to allow readers to walk through
