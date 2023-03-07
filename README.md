@@ -126,7 +126,8 @@ downloaded_data_prefix = "BUCKET_PREFIX"
 ```
 After importing the data, we plot the SNR value timeseries data which is displayed in the following Figure. We expect anomalies to be when the SNR value drops to -100. To further prepare the data, we convert to a [Pandas Dataframe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html). This conversion simplifies the input to the SageMaker Random Cut Forest Algorithm. The parameters have been set for the given example; however, they will need to be configured to reflect the data when applied to other datasets. As seen in the following code block, we call the fit function while passing in the dataset. This initiates a [SageMaker Training Job](https://docs.aws.amazon.com/sagemaker/latest/dg/how-it-works-training.html).
   
-![pipeline_3_value_plot](https://user-images.githubusercontent.com/123971998/223512572-a29d44a3-b31d-43d3-afc4-93f5b74c653a.png)
+![pipeline_3_value_plot](https://user-images.githubusercontent.com/123971998/223522225-05104f32-e5d3-4e74-a599-c19ccce59ad7.png)
+
 
 ```
 # automatically upload the training data to S3 and run the training job
@@ -139,7 +140,8 @@ Next, we use the trained model to identify anomalies in the dataset. Shown in th
 ```
 results = rcf_inference.predict(satcom_data_numpy)  
 ```  
-![pipeline_3_value_anomaly_plot](https://user-images.githubusercontent.com/123971998/223512132-4087cb5d-1bf1-430e-bd24-26ce00c71393.png)
+![pipeline_3_value_anomaly_plot](https://user-images.githubusercontent.com/123971998/223522043-5b1bd909-be51-465a-9514-48f0edec4e08.png)
+
   
 Lastly, we write the anomalies to S3 as JSON lines format as seen in the following Figure. For an additional exercise, [S3 Event Notifications](https://docs.aws.amazon.com/AmazonS3/latest/userguide/NotificationHowTo.html) can be configured so that downstream applications or alerts can be triggered to execute when the anomalies are written to S3. Additional future exercises might include building on the SageMaker Serverless Inference Endpoint by [integrating with API Gateway and Lambda](https://aws.amazon.com/blogs/machine-learning/call-an-amazon-sagemaker-model-endpoint-using-amazon-api-gateway-and-aws-lambda/). The last step in the Notebook involves cleaning up the SageMaker Serverless Inference Endpoint.
  
