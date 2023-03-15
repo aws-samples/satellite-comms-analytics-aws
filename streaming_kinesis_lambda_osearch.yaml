@@ -21,7 +21,7 @@ Parameters:
     OpenSearchAllowedIPs: 
         Description: "Comma-delimited list of IP addresses accessing OpenSearch domain"
         Type: CommaDelimitedList
-        Default: "1.2.3.4/24"
+        Default: "1.2.3.4/32"
           
         
         
