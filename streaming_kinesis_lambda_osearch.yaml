@@ -21,7 +21,7 @@ Parameters:
     OpenSearchAllowedIPs: 
         Description: "Comma-delimited list of IP addresses accessing OpenSearch domain"
         Type: CommaDelimitedList
-        Default: "68.4.56.0/24, 15.248.0.0/24"
+        Default: "1.2.3.4/24"
           
         
         
@@ -38,7 +38,7 @@ Resources:
         StreamMode: ON_DEMAND
       Tags:
       - Key: Name
-        Value: !Join [ "-", [ !Ref AWS::StackName, KdsDataStream] ]
+        Value: !Join [ "-", [ !Ref "AWS::StackName", KdsDataStream] ]
 
 
   InboundStreamLambdaFunctionEventSourceMapping:
@@ -66,16 +66,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaKinesisExecutionRole
         - arn:aws:iam::aws:policy/AmazonOpenSearchServiceFullAccess
-      Policies:
-        - PolicyName: allowKdsLambdaLogs
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-            - Effect: Allow
-              Action:
-              - logs:*
-              Resource: '*'
-  
+
   KdsProcessLambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -94,7 +85,7 @@ Resources:
         - !Ref KdsLambdaLayer
       Tags:
       - Key: Name
-        Value: !Join [ "-", [ !Ref AWS::StackName, KdsProcessLambdaFunction] ]
+        Value: !Join [ "-", [ !Ref "AWS::StackName", KdsProcessLambdaFunction] ]
         
   KdsLambdaLayer:
     Type: AWS::Lambda::LayerVersion
@@ -138,7 +129,7 @@ Resources:
                 aws:SourceIp: !Ref OpenSearchAllowedIPs
       Tags:
       - Key: Name
-        Value: !Join [ "-", [ !Ref AWS::StackName, SatComOpenSearchServiceDomain] ]
+        Value: !Join [ "-", [ !Ref "AWS::StackName", SatComOpenSearchServiceDomain] ]
 
 
 Outputs:

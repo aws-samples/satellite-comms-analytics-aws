@@ -131,7 +131,7 @@ Resources:
         RoleARN: !GetAtt FirehoseDeliveryRole.Arn
       Tags:
       - Key: Name
-        Value: !Join [ "-", [ !Ref AWS::StackName, SatComFirehoseDelivStrm] ]  
+        Value: !Join [ "-", [ !Ref "AWS::StackName", SatComFirehoseDelivStrm] ]  
         
   # create the Lambda fxn that the KDF Stream references
   # first create the Lambda Execution Role
@@ -147,15 +147,8 @@ Resources:
             - lambda.amazonaws.com
           Action:
           - sts:AssumeRole
-      Policies:
-        - PolicyName: allowLambdaLogs
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-            - Effect: Allow
-              Action:
-              - logs:*
-              Resource: '*'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
   FirehoseProcessLambdaFunction:
     Type: AWS::Lambda::Function
@@ -170,7 +163,7 @@ Resources:
       Runtime: python3.8
       Tags:
       - Key: Name
-        Value: !Join [ "-", [ !Ref AWS::StackName, FirehoseProcessLambdaFunction] ]  
+        Value: !Join [ "-", [ !Ref "AWS::StackName", FirehoseProcessLambdaFunction] ]  
 
           
   # Now create the Glue resources - Database, Crawlers, ETL job, workflow automation
