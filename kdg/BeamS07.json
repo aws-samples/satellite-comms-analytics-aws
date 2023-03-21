@@ -4,7 +4,7 @@
 			["B3010","B3256","C1710","C4432","C5510"]
 		)}}",
    "beamId": 136,
-   "beamName": "SES15-S07",
+   "beamName": "BeamS07",
    "satLong": -129.2,
    "fwdModCodId": {{random.weightedArrayElement(
        {
