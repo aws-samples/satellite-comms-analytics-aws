@@ -46,7 +46,7 @@ ApplyMapping_node2 = ApplyMapping.apply(
         ("beamname", "string", "beamname", "string"),
         ("satlong", "double", "satlong", "double"),
         ("fwdmodcodid", "int", "fwdmodcodid", "int"),
-        ("fwdsnr", "double", "fwdsnr", "double"),
+        ("fwdsnr", "double", "fwdsnr", "float"),
         ("packetslost", "int", "packetslost", "int"),
         ("latitude", "double", "latitude", "float"),
         ("longitude", "double", "longitude", "float"),
