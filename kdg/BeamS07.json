@@ -14,8 +14,8 @@
    )}},
    "fwdSNR": {{random.number(
        {
-	"min":4.0,
-	"max":7.0,
+	     "min":4,
+	     "max":7,
         "precision": 0.1
        }
    )}},
