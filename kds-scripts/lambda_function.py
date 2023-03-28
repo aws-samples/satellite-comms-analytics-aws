@@ -14,7 +14,7 @@ credentials = boto3.Session().get_credentials()
 awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service, session_token=credentials.token)
 
 # the OpenSearch Service domain (minus the https://)
-# host = f"search-idx-wshop-rt-osearch2-x5qkyyo7rx624z37uygohobaqu.{region}.es.amazonaws.com" 
+# host = f"search-name-a1bcdefgh23456.{region}.es.amazonaws.com" 
 port = 443
 index = 'lambda-geo-index4'
 
