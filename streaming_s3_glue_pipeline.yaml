@@ -71,11 +71,15 @@ Resources:
             Resource:
               - !Join 
                 - ''
-                - - 'arn:aws:s3:::'
+                - - 'arn:'
+                  - !Ref "AWS::Partition"
+                  - ':s3:::'
                   - !Ref InputS3Bucket
               - !Join 
                 - ''
-                - - 'arn:aws:s3:::'
+                - - 'arn:'
+                  - !Ref "AWS::Partition"
+                  - ':s3:::'
                   - !Ref InputS3Bucket
                   - '/*'
       Roles:
@@ -105,7 +109,9 @@ Resources:
       ExtendedS3DestinationConfiguration:
         BucketARN: !Join 
           - ''
-          - - 'arn:aws:s3:::'
+          - - 'arn:'
+            - !Ref "AWS::Partition"
+            - ':s3:::'
             - !Ref InputS3Bucket
         BufferingHints:
           SizeInMBs: 1
@@ -148,7 +154,7 @@ Resources:
           Action:
           - sts:AssumeRole
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
   FirehoseProcessLambdaFunction:
     Type: AWS::Lambda::Function
@@ -183,9 +189,9 @@ Resources:
             Action:
               - sts:AssumeRole
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole
-        - arn:aws:iam::aws:policy/AmazonS3FullAccess
-        - arn:aws:iam::aws:policy/AmazonKinesisFullAccess
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSGlueServiceRole
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonS3FullAccess
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonKinesisFullAccess
   
   # next create the top-level Databases we will use for the Glue Catalogs        
   SatComInputGlueCatalogDatabase:
