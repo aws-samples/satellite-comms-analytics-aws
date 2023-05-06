@@ -27,12 +27,19 @@ def lambda_handler(event, context):
     longInc = 0
     
     # get the OpenSearch domain endpoint from environment variable, and strip the https://
+    # endpoint appears to have changed ie no longer has https:// prefix so handle both cases
     endpoint = os.environ['endpoint']
     hostnm = endpoint.partition("https://")
-    print("hostnm: ", hostnm[2])
+    print("Region: ", region)
+    print("endpoint: ", endpoint)
+    if not hostnm[2]:
+        hostname = endpoint
+    else:
+        hostname = hostnm[2]
+    print("hostname: ", hostname)
     
     client = OpenSearch(
-        hosts = [{'host': hostnm[2], 'port': port}],
+        hosts = [{'host': hostname, 'port': port}],
         http_auth = awsauth,
         use_ssl = True,
         verify_certs = True,

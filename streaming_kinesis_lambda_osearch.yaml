@@ -30,12 +30,15 @@ Parameters:
 Resources:
 
   # Kinesis Data Stream with Lambda transformation
+  # Note - due to https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues/1354 
+  # we are using PROVISIONED default mode (lowest common denominator)
   KdsDataStream: 
     Type: AWS::Kinesis::Stream
     Properties: 
       RetentionPeriodHours: 24
-      StreamModeDetails:
-        StreamMode: ON_DEMAND
+      ShardCount: 2
+      #StreamModeDetails:
+      #  StreamMode: ON_DEMAND
       Tags:
       - Key: Name
         Value: !Join [ "-", [ !Ref "AWS::StackName", KdsDataStream] ]
@@ -64,8 +67,8 @@ Resources:
             Action:
               - sts:AssumeRole
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaKinesisExecutionRole
-        - arn:aws:iam::aws:policy/AmazonOpenSearchServiceFullAccess
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaKinesisExecutionRole
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonOpenSearchServiceFullAccess
 
   KdsProcessLambdaFunction:
     Type: AWS::Lambda::Function
@@ -123,7 +126,7 @@ Resources:
             Principal:
               AWS: '*'
             Action: 'es:*'
-            Resource: !Sub "arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/*"
+            Resource: !Sub "arn:${AWS::Partition}:es:${AWS::Region}:${AWS::AccountId}:domain/*"
             Condition: 
               IpAddress: 
                 aws:SourceIp: !Ref OpenSearchAllowedIPs
