@@ -33,7 +33,7 @@ def lambda_handler(event, context):
         rtsWeather = os.getenv('rtsWeather')
     else:
         parser = argparse.ArgumentParser()
-        parser.add_argument("-b", "--bucketname", help="This bucket holding the Forecast input data")
+        parser.add_argument("-b", "--bucketname", help="This bucket will hold the Forecast input data")
         parser.add_argument("-t", "--ttsSatComUsage", help="This file will be generated with SatCom usage")
         parser.add_argument("-r", "--rtsWeather", help="This file will be generated with Weather data")
         args = parser.parse_args()
