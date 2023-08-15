@@ -1,4 +1,4 @@
-## My Project
+## Predicting satellite communications capacity with Amazon Forecast
 
 TODO: Fill this README out!
 
