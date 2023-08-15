@@ -8,10 +8,6 @@ series predictor model for each satellite beam in the ship(s) path, accounting f
 conditions in a given location. It then renders results in Amazon QuickSight BI tooling, displaying
 forecasted capacity needs, accuracy metrics, and which attributes most impact the model.
 
-Be sure to:
-
-* Change the title in this README
-* Edit your repository description on GitHub
 
 ## Security
 
