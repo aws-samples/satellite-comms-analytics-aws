@@ -5,7 +5,7 @@ This repository contains sample code to demonstrate Satellite Communications For
 
 It focuses on a Maritime shipping use-case, using [Amazon Forecast](https://aws.amazon.com/forecast/) to build a time
 series predictor model for each satellite beam in the ship(s) path, accounting for the impact of weather
-conditions in a given location. It then renders results in Amazon QuickSight BI tooling, displaying
+conditions in a given location. It then renders results in [Amazon QuickSight](https://aws.amazon.com/quicksight/) BI tooling, displaying
 forecasted capacity needs, accuracy metrics, and which attributes most impact the model.
 
 ![Capture_fig1](https://github.com/aws-samples/satellite-comms-forecast-aws/assets/122999933/d0769364-7bff-44cf-8cae-bf33319e1250)
