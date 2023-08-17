@@ -32,6 +32,17 @@ We supply 14 days of historical and related time series data at 10-minute interv
 In general the model accuracy improves with more data however more specifically we want to identify any 
 day of week or hour of day patterns such as the daily sea breeze effect in summer in Florida, US. 
 
+A [lambda function](satcom-forecast-datagen-fxn/lambda_function.py) is provided to generate the TTS and RTS datasets.
+Surge capacity windows and severe weather troughs are applied to subsets of the data to validate that Forecast can
+produce a model capable of handling typical SatCom scenarios such as congestion, ["rain fade"](https://en.wikipedia.org/wiki/Rain_fade) etc
+
+The results are posted to [Amazon S3](https://aws.amazon.com/s3/). It is suggested to create a folder structure similar to below. This enables 
+the Forecast Dataset import jobs to target the specific set of TTS or RTS files.
+- satcom-forecast-bkt-12345/
+  - dataset/
+    - tts/
+    - rts/
+  
 
 
 ## Security
