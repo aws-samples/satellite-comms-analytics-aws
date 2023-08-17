@@ -21,6 +21,19 @@ An accurate forecasting strategy can lead to lower costs (less bandwidth waste),
 satisfaction (e.g. successful capacity handling of surges). 
 
 
+### Data generation and import
+
+The primary (TTS) time-series data set required to predict future satellite capacity bandwidth needs is historical usage across
+each spot-beam over a period of time. 
+Secondary datasets (RTS) are optional but serve to improve the model accuracy e.g. weather has a correlation with achievable data rates
+hence supplying weather data points, particularly severe weather, helps the Predictor.
+
+We supply 14 days of historical and related time series data at 10-minute intervals. Why do we need so much? 
+In general the model accuracy improves with more data however more specifically we want to identify any 
+day of week or hour of day patterns such as the daily sea breeze effect in summer in Florida, US. 
+
+
+
 ## Security
 
 See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
