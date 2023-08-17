@@ -21,7 +21,7 @@ An accurate forecasting strategy can lead to lower costs (less bandwidth waste),
 satisfaction (e.g. successful capacity handling of surges). 
 
 
-### Data generation and import
+### Satellite bandwidth and weather data generation
 
 The primary (TTS) time-series data set required to predict future satellite capacity bandwidth needs is historical usage across
 each spot-beam over a period of time. 
@@ -50,8 +50,18 @@ The key element is air-pressure (hPa) - a value below 975 indicates potentially 
 timestamp and air-pressure and then append day-of-week and hour-of-day to determine if there are any cyclical trends
 the model can identify. 
 
+Results are also posted to Amazon S3, under the rts/ folder. 
+
+To improve the quality of the model there are several additional datasets which could be injected as RTS such as: -
+* more accurate weather forecast data using eg [Accuweather APIs](https://developer.accuweather.com/)
+* lost-lock activity e.g. if the communications link was broken at specific times in particular beams
+* Carrier-to-Noise ratio (C/N), a measure of the received carrier strength relative to noise. 
 
 
+### Satellite Capacity Forecast notebook workflow
+
+The entire set of operations can be done in the console, however a [Jupyter notebook](forecast-notebook/satcom-forecast-notebook.ipynb) is provided 
+to automate the sequence of events. 
 
 
 
