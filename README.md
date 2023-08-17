@@ -36,13 +36,15 @@ A [lambda function](satcom-forecast-datagen-fxn/lambda_function.py) is provided 
 Surge capacity windows and severe weather troughs are applied to subsets of the data to validate that Forecast can
 produce a model capable of handling typical SatCom scenarios such as congestion, ["rain fade"](https://en.wikipedia.org/wiki/Rain_fade) etc
 
-The results are posted to [Amazon S3](https://aws.amazon.com/s3/). It is suggested to create a folder structure similar to below. This enables 
+The results in csv, are posted to [Amazon S3](https://aws.amazon.com/s3/). It is suggested to create a folder structure similar to below. This enables 
 the Forecast Dataset import jobs to target the specific set of TTS or RTS files.
 - satcom-forecast-bkt-12345/
   - dataset/
     - tts/
     - rts/
   
+An [additional lambda function](noaa-ndbc-weather-fxn/lambda_function.py) is also provided to parse National Oceanic and Atmospheric Administration [National Data Buoy Center](https://www.ndbc.noaa.gov/) 
+historical and real-time datasets e.g. [Station 41043](https://www.ndbc.noaa.gov/data/realtime2/41043.txt)
 
 
 ## Security
