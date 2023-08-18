@@ -36,6 +36,11 @@ A [lambda function](satcom-forecast-datagen-fxn/lambda_function.py) is provided 
 Surge capacity windows and severe weather troughs are applied to subsets of the data to validate that Forecast can
 produce a model capable of handling typical SatCom scenarios such as congestion, ["rain fade"](https://en.wikipedia.org/wiki/Rain_fade) etc
 
+A [Cloudformation template](https://aws.amazon.com/cloudformation/) is supplied to deploy the lambda function automatically with the 
+appropriate permissions. A pre-requisite is to supply the lambda as a zip file in an S3 bucket so that CloudFormation can reference it
+(the alternative is embedding the code in the YAML itself which can get a bit unwieldy!). Edit the path (folder) to the code zip 
+in the CFN parameter settings as appropriate. 
+
 The results in csv, are posted to [Amazon S3](https://aws.amazon.com/s3/). It is suggested to create a folder structure similar to below. This enables 
 Forecast Dataset import jobs to target the specific set of TTS or RTS files.
 - satcom-forecast-bkt-12345/
@@ -52,6 +57,10 @@ timestamp and air-pressure and then append day-of-week and hour-of-day to determ
 the model can identify. 
 
 Results are also posted to Amazon S3, under the rts/ folder. 
+
+A CloudFormation template is also supplied for this [NOAA buoy parsing lambda function](noaa-ndbc-weather-fxn/lambda_function.py) 
+A sample set of buoy data (station 41043) is supplied. 
+You can get new datasets via wget at https://www.ndbc.noaa.gov/faq/rt_data_access.shtml
 
 To improve the quality of the model there are several additional RTS datasets which could be injected such as: -
 * more accurate weather forecast data using eg [Accuweather APIs](https://developer.accuweather.com/)
