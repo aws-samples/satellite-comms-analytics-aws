@@ -61,7 +61,10 @@ To improve the quality of the model there are several additional datasets which 
 ### Satellite Capacity Forecast notebook workflow
 
 The entire set of operations can be done in the console, however a [Jupyter notebook](forecast-notebook/satcom-forecast-notebook.ipynb) is provided 
-to automate the sequence of events. 
+to automate the sequence of following events: -
+
+![Amazon Forecast Workflow](https://github.com/aws-samples/amazon-forecast-samples/raw/main/notebooks/basic/Getting_Started/images/workflow.png)
+
 
 
 
