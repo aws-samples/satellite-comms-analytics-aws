@@ -18,14 +18,14 @@ of satellite capacity. This is where Amazon Forecast provides great benefit. For
 historical bandwidth usage data and related time series such as weather metrics.
 
 An accurate forecasting strategy can lead to lower costs (less bandwidth waste), and higher passenger 
-satisfaction (e.g. successful capacity handling of surges). 
+satisfaction (e.g. successful capacity handling of demand surges). 
 
 
 ### Satellite bandwidth and weather data generation
 
-The primary (TTS) time-series data set required to predict future satellite capacity bandwidth needs is historical usage across
+The target time-series (TTS) data set required to predict future satellite capacity bandwidth needs is historical usage across
 each spot-beam over a period of time. 
-Secondary datasets (RTS) are optional but serve to improve the model accuracy e.g. weather has a correlation with achievable data rates
+Related datasets (RTS) are optional but serve to improve the model accuracy e.g. weather has a correlation with achievable data rates
 hence supplying weather data points, particularly severe weather, helps the Predictor.
 
 We supply 14 days of historical and related time series data at 10-minute intervals. Why do we need so much? 
@@ -37,22 +37,23 @@ Surge capacity windows and severe weather troughs are applied to subsets of the 
 produce a model capable of handling typical SatCom scenarios such as congestion, ["rain fade"](https://en.wikipedia.org/wiki/Rain_fade) etc
 
 The results in csv, are posted to [Amazon S3](https://aws.amazon.com/s3/). It is suggested to create a folder structure similar to below. This enables 
-the Forecast Dataset import jobs to target the specific set of TTS or RTS files.
+Forecast Dataset import jobs to target the specific set of TTS or RTS files.
 - satcom-forecast-bkt-12345/
   - dataset/
     - tts/
     - rts/
   
-An [additional lambda function](noaa-ndbc-weather-fxn/lambda_function.py) is also provided to parse National Oceanic and Atmospheric Administration [National Data Buoy Center](https://www.ndbc.noaa.gov/) 
+An [additional lambda function](noaa-ndbc-weather-fxn/lambda_function.py) is provided to parse 
+National Oceanic and Atmospheric Administration [National Data Buoy Center](https://www.ndbc.noaa.gov/) 
 historical and real-time datasets e.g. [Station 41043](https://www.ndbc.noaa.gov/data/realtime2/41043.txt)
 
-The key element is air-pressure (hPa) - a value below 975 indicates potentially severe weather. In the lambda, we peel out 
+The key element is air-pressure (hPa) - a value below 990 indicates potentially severe weather. In the lambda, we peel out 
 timestamp and air-pressure and then append day-of-week and hour-of-day to determine if there are any cyclical trends
 the model can identify. 
 
 Results are also posted to Amazon S3, under the rts/ folder. 
 
-To improve the quality of the model there are several additional datasets which could be injected as RTS such as: -
+To improve the quality of the model there are several additional RTS datasets which could be injected such as: -
 * more accurate weather forecast data using eg [Accuweather APIs](https://developer.accuweather.com/)
 * lost-lock activity e.g. if the communications link was broken at specific times in particular beams
 * Carrier-to-Noise ratio (C/N), a measure of the received carrier strength relative to noise. 
@@ -106,7 +107,7 @@ A sample plot for SpotH12's next 24 hours capacity forecast at a P90 WQL is pres
 
 ![Capture_spoth12_forecast](https://github.com/aws-samples/satellite-comms-forecast-aws/assets/122999933/dac6292e-d6b0-4bb9-ae13-f6c427d7abe1)
 
-Simply change the ITEM_ID to plot your target item of interest.
+Simply change the ITEM_ID to query your target item of interest.
 
 Additional metrics such as predictor explainability are also exported to S3 - this helps us refine the model
 by placing more emphasis on 1 RTS variable over another.
