@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: "Constructs the lambda, with appropriate permissions, which parses
+  NOAA National Data Buoy Center realtime meteorological datasets eg air-pressure
+  Puts results as RTS in S3 bucket"
+
+# parameters to pass to the CFN
+Parameters:
+
+    SatComDatasetS3Bucket:
+        Type: String
+        Description: Bucket for all of the satcom-forecast assets
+        Default: "forecast-satcom-capacity"
+        
+    SatComBuoyParseLambdaZipName:
+        Type: String
+        Description: Name of the lambda zip file function parsing NOAA buoy data
+        Default: "datagen-fxns/noaa-ndbc-weather-fxn.zip"
+        
+        
+# creation of AWS resources        
+Resources:
+
+  ProcessLambdaFunctionExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonS3FullAccess
+
+  # Note - a sample buoy dataset is supplied
+  # you can get new datasets via wget at https://www.ndbc.noaa.gov/faq/rt_data_access.shtml
+  ProcessLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Lambda function to generate RTS data based on Buoy dataset
+      Handler: lambda_function.lambda_handler
+      Timeout: 60
+      Role: !GetAtt ProcessLambdaFunctionExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref SatComDatasetS3Bucket
+        S3Key: !Ref SatComBuoyParseLambdaZipName
+      Runtime: python3.9
+      Environment:
+        Variables:
+          bucketName: !Ref SatComDatasetS3Bucket
+          ndbc: 41043.txt
+          spotBeam: SpotH12
+      Tags:
+      - Key: Name
+        Value: !Join [ "-", [ !Ref "AWS::StackName", ProcessLambdaFunction] ]
+        
+
+Outputs:
+  LambdaFxnName:
+    Value: !Ref ProcessLambdaFunction
