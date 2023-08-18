@@ -58,8 +58,8 @@ the model can identify.
 
 Results are also posted to Amazon S3, under the rts/ folder. 
 
-A CloudFormation template is also supplied for this [NOAA buoy parsing lambda function](noaa-ndbc-weather-fxn/lambda_function.py) 
-A sample set of buoy data (station 41043) is supplied. 
+A CloudFormation template is also supplied for this [NOAA buoy parsing lambda function](noaa-ndbc-weather-fxn/lambda_function.py).
+A sample set of buoy data [(station 41043)](https://www.ndbc.noaa.gov/station_realtime.php?station=41043) is supplied. 
 You can get new datasets via wget at https://www.ndbc.noaa.gov/faq/rt_data_access.shtml
 The CFN parameters are similar to the previous lambda - however in this case we also add the buoy sample data file to the zipfile. 
 
