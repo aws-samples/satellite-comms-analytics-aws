@@ -78,6 +78,15 @@ the DATASET_FREQUENCY to "10min". The schema, supplied in JSON, is different for
 | target_value | float | Satellite bandwidth usage historical data (MHz) |
 | item_id | string | Spot-beam eg SpotH7, SpotH12 etc |
 
+*Weather historical and forecast data*
+| Attribute      | Type     | Description |
+| -------------- | ----------- | ----------- |
+| timestamp  | timestamp | 10 min intervals in format yyyy-MM-dd HH:mm:ss |
+| air_pressure | integer | Barometric pressure of buoy in a given spot beam footprint |
+| item_id | string | Spot-beam eg SpotH7, SpotH12 etc |
+| day_of_week | string | Does day of week influence the model? |
+| hour_of_day | string | Does hour of day influence the model? |
+
 
 
 
