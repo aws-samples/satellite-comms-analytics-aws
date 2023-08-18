@@ -67,8 +67,8 @@ to automate the sequence of following events: -
 
 First up, is getting the correct permissions. An IAM role with full S3 access and Forecast access is required. 
 
-Next, historical bandwidth (TTS) and weather data (RTS) for 4 different spot-beams along the ship's route are imported to Amazon Forecast. Key variables
-to modify are the DATASET_FREQUENCY, schema(s), and the key (csv files or a folder in your S3 bucket). Since satellite bandwidth usage is dynamic, we set 
+Next, historical bandwidth (TTS) and weather data (RTS) for 4 different spot-beams along the ship's route are imported to Amazon Forecast. Important variables
+to modify are the DATASET_FREQUENCY, schema(s), and the key (csv file or a folder/ in your S3 bucket). Since satellite bandwidth usage is dynamic, we set 
 the DATASET_FREQUENCY to "10min". The schema, supplied in JSON, is different for TTS versus RTS: -
 
 *Historical bandwidth usage data*
@@ -87,13 +87,31 @@ the DATASET_FREQUENCY to "10min". The schema, supplied in JSON, is different for
 | day_of_week | string | Does day of week influence the model? |
 | hour_of_day | string | Does hour of day influence the model? |
 
+When the import(s) are complete, the notebook will return the job ARN with a status of ACTIVE.
 
+The predictor step is then triggered. Be sure to set the FORECAST_HORIZON correctly. This is the number of time steps being forecasted. 
+In our use-case the horizon is 144 ie 1 day (10 min granularity : 6 * 24)
 
+We use an AutoPredictor model whereby each time series can receive a bespoke recipe – a blend of
+predictions underlying up to 6 different statistical and deep-learning models improving accuracy at every series.
+The net effect is higher accuracy, as outlined in the notebook section "Review accuracy metrics".
 
+Our primary accuracy metric for this use-case is the P90 Weighted Quantile Loss (WQL), which indicates the
+confidence level of the true value being lower than the predicted value 90% of the time. This is
+important because Satellite Operators typically want to slightly overprovision ensuring consumers have
+enough bandwidth the majority of the time. 
 
+Finally, a forecast is generated with results exported to S3 for further ingestion by BI tools.
+A sample plot for SpotH12's next 24 hours capacity forecast at a P90 WQL is presented below: -
 
 ![Capture_spoth12_forecast](https://github.com/aws-samples/satellite-comms-forecast-aws/assets/122999933/dac6292e-d6b0-4bb9-ae13-f6c427d7abe1)
 
+Simply change the ITEM_ID to plot your target item of interest.
+
+Additional metrics such as predictor explainability are also exported to S3 - this helps us refine the model
+by placing more emphasis on 1 RTS variable over another.
+
+This completes the workflow. To terminate all Forecast assets uncomment the "Clean-up" section
 
 ## Security
 
