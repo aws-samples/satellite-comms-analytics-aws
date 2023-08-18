@@ -52,6 +52,8 @@ An [additional lambda function](noaa-ndbc-weather-fxn/lambda_function.py) is pro
 National Oceanic and Atmospheric Administration [National Data Buoy Center](https://www.ndbc.noaa.gov/) 
 historical and real-time datasets e.g. [Station 41043](https://www.ndbc.noaa.gov/data/realtime2/41043.txt)
 
+![NOAA weather buoy](https://www.ndbc.noaa.gov/images/stations/3mfoam_scoop.jpg)
+
 The key element is air-pressure (hPa) - a value below 990 indicates potentially severe weather. In the lambda, we peel out 
 timestamp and air-pressure and then append day-of-week and hour-of-day to determine if there are any cyclical trends
 the model can identify. 
