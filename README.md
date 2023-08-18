@@ -65,6 +65,19 @@ to automate the sequence of following events: -
 
 ![Amazon Forecast Workflow](https://github.com/aws-samples/amazon-forecast-samples/raw/main/notebooks/basic/Getting_Started/images/workflow.png)
 
+First up, is getting the correct permissions. An IAM role with full S3 access and Forecast access is required. 
+
+Next, historical bandwidth (TTS) and weather data (RTS) for 4 different spot-beams along the ship's route are imported to Amazon Forecast. Key variables
+to modify are the DATASET_FREQUENCY, schema(s), and the key (csv files or a folder in your S3 bucket). Since satellite bandwidth usage is dynamic, we set 
+the DATASET_FREQUENCY to "10min". The schema, supplied in JSON, is different for TTS versus RTS: -
+
+*Historical bandwidth usage data*
+| Attribute      | Type     | Description |
+| -------------- | ----------- | ----------- |
+| timestamp  | timestamp | 10 min intervals in format yyyy-MM-dd HH:mm:ss |
+| target_value | float | Satellite bandwidth usage historical data (MHz) |
+| item_id | string | Spot-beam eg SpotH7, SpotH12 etc |
+
 
 
 
