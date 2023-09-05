@@ -17,7 +17,7 @@ Satellite Operators would like advance notice of capacity needs to plan out allo
 of satellite capacity. This is where Amazon Forecast provides great benefit. Forecast can predict future capacity needs per beam leveraging 
 historical bandwidth usage data and related time series such as weather metrics.
 
-An accurate forecasting strategy can lead to lower costs (less bandwidth waste), and higher passenger 
+An accurate forecasting strategy can lead to lower costs (higher bandwidth utilization), and higher passenger 
 satisfaction (e.g. successful capacity handling of demand surges). 
 
 
@@ -105,7 +105,8 @@ When the import(s) are complete, the notebook will return the job ARN with a sta
 The predictor step is then triggered. Be sure to set the FORECAST_HORIZON correctly. This is the number of time steps being forecasted. 
 In our use-case the horizon is 144 ie 1 day (10 min granularity : 6 * 24)
 
-We use an AutoPredictor model whereby each time series can receive a bespoke recipe – a blend of
+We use an [AutoPredictor](https://docs.aws.amazon.com/forecast/latest/dg/howitworks-predictor.html) model whereby each time 
+series can receive a bespoke recipe – a blend of
 predictions underlying up to 6 different statistical and deep-learning models improving accuracy at every series.
 The net effect is higher accuracy, as outlined in the notebook section "Review accuracy metrics".
 
@@ -124,7 +125,9 @@ Simply change the ITEM_ID to query your target item of interest.
 Additional metrics such as predictor explainability are also exported to S3 - this helps us refine the model
 by placing more emphasis on 1 RTS variable over another.
 
-This completes the workflow. To terminate all Forecast assets uncomment the "Clean-up" section
+This completes the workflow. 
+
+To terminate all Forecast assets uncomment the "Clean-up" section
 
 ## Security
 
