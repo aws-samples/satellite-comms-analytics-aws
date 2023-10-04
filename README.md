@@ -8,7 +8,7 @@ series predictor model for each satellite beam in the ship(s) path, accounting f
 conditions in a given location. It then renders results in [Amazon QuickSight](https://aws.amazon.com/quicksight/) BI tooling, displaying
 forecasted capacity needs, accuracy metrics, and which attributes most impact the model.
 
-![Capture_fig1](https://github.com/aws-samples/satellite-comms-forecast-aws/assets/122999933/d0769364-7bff-44cf-8cae-bf33319e1250)
+![Capture_fig1](https://github.com/aws-samples/satellite-comms-forecast-aws/assets/122999933/f3b789fa-ffbb-4a66-976e-353059e804e0)
 
 Multiple factors such as weather and the geographical location of the vessel in the beam impact data rates and therefore the 
 usage of satellite capacity bandwidth. 
