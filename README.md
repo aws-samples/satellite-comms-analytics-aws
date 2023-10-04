@@ -118,7 +118,7 @@ enough bandwidth the majority of the time.
 Finally, a forecast is generated with results exported to S3 for further ingestion by BI tools.
 A sample plot for SpotH12's next 24 hours capacity forecast at a P90 WQL is presented below: -
 
-![Capture_spoth12_forecast](https://github.com/aws-samples/satellite-comms-forecast-aws/assets/122999933/dac6292e-d6b0-4bb9-ae13-f6c427d7abe1)
+![Capture_spoth12_forecast](https://github.com/aws-samples/satellite-comms-forecast-aws/assets/122999933/2fc00b47-27f2-44ab-b045-735d94dd9826)
 
 Simply change the ITEM_ID to query your target item of interest.
 
