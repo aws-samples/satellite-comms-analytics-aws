@@ -1,7 +1,8 @@
 ## Predicting satellite communications capacity with Amazon Forecast
 
 ### Description
-This repository contains sample code to demonstrate Satellite Communications Forecasting use-cases.
+This repository contains sample code to demonstrate Satellite Communications Forecasting use-cases. The associated blog 
+is [here](https://aws.amazon.com/blogs/publicsector/maximizing-satellite-communications-usage-with-amazon-forecast/).
 
 It focuses on a Maritime shipping use-case, using [Amazon Forecast](https://aws.amazon.com/forecast/) to build a time
 series predictor model for each satellite beam in the ship(s) path, accounting for the impact of weather
