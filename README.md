@@ -147,3 +147,16 @@ Lastly, we write the anomalies to S3 as JSON lines format as seen in the followi
  
 ![pipeline_3_anomalies](https://user-images.githubusercontent.com/123971998/223512838-88b65695-4a8c-49a0-a22f-1cccecfe25b2.png)
 
+### Troubleshooting
+
+#### CloudFormation Error
+
+```
+Your access has been denied by S3, please make sure your request credentials have permission to GetObject for satcom-pipeline-assets/kdf-scripts/satcom-wshop-kdf-lambda-py.zip. S3 Error Code: AccessDenied.
+```
+
+Ensure you have specified your assets bucket as the SatComAssetsS3Bucket parameter of the CloudFormation template. Use the KdfLambdaZipName parameter to specify the bucket key which maps to the zipped version of kdf-scripts/lambda_function.py.
+
+#### Kinesis Data Generator - No Stream/delivery stream
+
+The Kinesis Data Firehose and Kinesis Data Stream delivery targets will be available after the respective CloudFormation templates have been created.
