@@ -160,3 +160,11 @@ Ensure you have specified your assets bucket as the SatComAssetsS3Bucket paramet
 #### Kinesis Data Generator - No Stream/delivery stream
 
 The Kinesis Data Firehose and Kinesis Data Stream delivery targets will be available after the respective CloudFormation templates have been created.
+
+#### KDS Process Lambda Error
+
+```
+[ERROR] Runtime.ImportModuleError: Unable to import module 'lambda_function': cannot import name 'DEFAULT_CIPHERS' from 'urllib3.util.ssl_' (/opt/python/urllib3/util/ssl_.py)
+```
+
+When creating the Lambda layer in Pipeline 2, consider using a Python [virtual environment](https://docs.python.org/3/library/venv.html#module-venv) and adding botocore to the layer. The python version used to make the layer should also be used as the Lambda Python Runtime. For example, if Python3.11 is used to create the layer, the Lambda Python Runtime should also use 3.11.
