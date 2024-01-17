@@ -140,7 +140,7 @@ The benefits of SageMaker Autopilot Timeseries over Amazon Forecast are: -
 * accuracy metrics for all (6) algorithms leveraged in the AutoPredictor
 * faster training time
 * select which model to use (best candidate or otherwise)
-* lower cost (particularly with Real Time Inference)
+* lower cost (particularly with Real Time Inference) 
 
 It is therefore recommended to use SageMaker Autopilot Timeseries over Amazon Forecast
 for new prediction use-cases.
