@@ -130,6 +130,26 @@ This completes the workflow.
 
 To terminate all Forecast assets uncomment the "Clean-up" section
 
+
+## Alternate method - SageMaker Autopilot Timeseries
+
+The same forecasting algorithms, ensembling techniques, explainability can now be done via
+SageMaker Autopilot timeseries. 
+
+The benefits of SageMaker Autopilot Timeseries over Amazon Forecast are: -
+* accuracy metrics for all (6) algorithms leveraged in the AutoPredictor
+* faster training time
+* select which model to use (best candidate or otherwise)
+* lower cost (particularly with Real Time Inference)
+
+It is therefore recommended to use SageMaker Autopilot Timeseries over Amazon Forecast
+for new prediction use-cases.
+
+A Jupyter notebook demonstrating how to perform satellite capacity forecasting
+with SageMaker Autopilot is (here)[./autopilot-notebook/satcom-autopilot-notebook.ipynb]
+along with a complete (README)[./autopilot-notebook/README.md]
+
+
 ## Security
 
 See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
