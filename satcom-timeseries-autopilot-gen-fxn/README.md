@@ -25,9 +25,10 @@ carry your static item metadata and expected covariate values. Future-dated targ
 ### Example usage
 
 * generate training data
-Set the environment variables as follows: -
-| Key      | Value     | Description |
-| -------------- | ----------- | ----------- |
+Set the environment variables as follows
+
+| Key      | Value       | Description |
+| ---------| ----------- | ----------- |
 | bucketName  | your-bucket-name-12345 | destination for the training data |
 | timeseriesSatCom | satcom-autopilot-cap.csv | Satellite bandwidth usage and weather data |
 | mode | train | generate training data |
