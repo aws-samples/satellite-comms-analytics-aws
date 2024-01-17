@@ -41,5 +41,30 @@ Take care to create future-dated rows that extend to the end of your prediction 
 carry your static item metadata and expected covariate values. Future-dated target-value (y) should be empty. 
 
 
+Model Training - we create an auto ML job of type timeseries forecast using the API 
+[create_auto_ml_job_v2](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sagemaker/client/create_auto_ml_job_v2.html)
+
+The configuration is important: -
+* set the forecast frequency - we use 10min intervals
+* specify the horizon - we use 144 (1 day : 6 * 24)
+* indicate which quantiles to predict - p70, p90 is useful in Sat Capacity forecasting to slightly overprovision.
+* set the target attribute, timestamp & item_id attributes
+ 
+Training can take 1-2 hours, at the end of which the best candidate model from the AutoPredictor is printed.
+
+
+Real Time Inference - using the best candidate model we create an endpoint to run inferences against. 
+
+A small, sample CSV with the same schema as the training dataset is supplied narrowed down to the item_id(s) of interest.
+
+Invoking the endpoint is quick (< 60 secs).
+
+The real-time predictions are saved in the S3 bucket.
+
+
+Clean-up - As needed, you can stop the endpoint and related billing costs as follows. 
+When you need the endpoint again, you can follow the deployment steps again. 
+Ideally, at a future time, another newer model is trained and able to be deployed as well.
+
 
 
