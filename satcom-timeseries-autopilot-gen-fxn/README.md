@@ -1,4 +1,4 @@
-## satellite communications capacity data generation for Amazon SageMaker Autopilot Timeseries
+## Satellite communications capacity data generation for Amazon SageMaker Autopilot Timeseries
 
 ### Description
 This Lambda function generates a sample Satellite Communications dataset for use in 
