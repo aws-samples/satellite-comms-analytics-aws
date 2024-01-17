@@ -23,8 +23,23 @@ to automate the sequence of following events: -
 
 Setup - the user must specify an S3 bucket for the input data. The main input is the 
 training dataset which comprises of historical bandwidth usage, and weather data for a set
-of Spot Beams (item_id's). One difference v Amazon Forecast is that all input data must benefits
+of Spot Beams (item_id's). One difference v Amazon Forecast is that all input data must be
 combined into a single schema. 
+
+1+ sample CSV files are generated via the [satcom timeseries generation function](../satcom-timeseries-autopilot-gen-fxn/lambda_function.py) 
+with the following structure:
+
+* timestamp (required, TimestampAttributeName)
+* airpressure (covariate)
+* beam (required: ItemIdentifierAttributeName)
+* dayofweek (covariate)
+* hourofday (covariate)
+* mHz (required: TargetAttributeName)
+
+IMPORTANT: When training a model, your input data can contain a mixture of covariate and static item metadata. 
+Take care to create future-dated rows that extend to the end of your prediction horizon. In the future-dated rows, 
+carry your static item metadata and expected covariate values. Future-dated target-value (y) should be empty. 
+
 
 
 
