@@ -146,8 +146,8 @@ It is therefore recommended to use SageMaker Autopilot Timeseries over Amazon Fo
 for new prediction use-cases.
 
 A Jupyter notebook demonstrating how to perform satellite capacity forecasting
-with SageMaker Autopilot is (here)[./autopilot-notebook/satcom-autopilot-notebook.ipynb]
-along with a complete (README)[./autopilot-notebook/README.md]
+with SageMaker Autopilot is [here](./autopilot-notebook/satcom-autopilot-notebook.ipynb)
+along with a complete [README](./autopilot-notebook/README.md)
 
 
 ## Security
