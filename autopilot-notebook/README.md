@@ -21,7 +21,7 @@ for new prediction use-cases.
 A [Jupyter notebook](./satcom-autopilot-notebook.ipynb) is provided 
 to automate the sequence of following events: -
 
-Setup - the user must specify an S3 bucket for the input data. The main input is the 
+**Setup** - the user must specify an S3 bucket for the input data. The main input is the 
 training dataset which comprises of historical bandwidth usage, and weather data for a set
 of Spot Beams (item_id's). One difference v Amazon Forecast is that all input data must be
 combined into a single schema. 
@@ -41,7 +41,7 @@ Take care to create future-dated rows that extend to the end of your prediction 
 carry your static item metadata and expected covariate values. Future-dated target-value (y) should be empty. 
 
 
-Model Training - we create an auto ML job of type timeseries forecast using the API 
+**Model Training** - we create an auto ML job of type timeseries forecast using the API 
 [create_auto_ml_job_v2](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sagemaker/client/create_auto_ml_job_v2.html)
 
 The configuration is important: -
@@ -53,7 +53,7 @@ The configuration is important: -
 Training can take 1-2 hours, at the end of which the best candidate model from the AutoPredictor is printed.
 
 
-Real Time Inference - using the best candidate model we create an endpoint to run inferences against. 
+**Real Time Inference** - using the best candidate model we create an endpoint to run inferences against. 
 
 A small, sample CSV with the same schema as the training dataset is supplied narrowed down to the item_id(s) of interest.
 
@@ -62,7 +62,7 @@ Invoking the endpoint is quick (< 60 secs).
 The real-time predictions are saved in the S3 bucket.
 
 
-Clean-up - As needed, you can stop the endpoint and related billing costs as follows. 
+**Clean-up** - As needed, you can stop the endpoint and related billing costs as follows. 
 When you need the endpoint again, you can follow the deployment steps again. 
 Ideally, at a future time, another newer model is trained and able to be deployed as well.
 
