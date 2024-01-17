@@ -14,12 +14,12 @@ import random
 
 
 startyear = 2023
-startmonth = 2
-startday = 15
+startmonth = 4
+startday = 1
 
 spotBeams = ['SpotH3', 'SpotH7', 'SpotH12', 'SpotH15']
 
-numRecs = 144 * 14       # TTS data : 14d
+numRecs = 144 * 28       # TTS data : 28d
 horizonRecs = 144        # RTS forecast : 1d (10 min granularity : 6 * 24)
 
 
