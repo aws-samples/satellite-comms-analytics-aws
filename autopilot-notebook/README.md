@@ -16,5 +16,15 @@ It is therefore recommended to use SageMaker Autopilot Timeseries over Amazon Fo
 for new prediction use-cases.
 
 
+### Satellite Capacity SageMaker Autopilot Timeseries notebook workflow
+
+A [Jupyter notebook](./satcom-autopilot-notebook.ipynb) is provided 
+to automate the sequence of following events: -
+
+Setup - the user must specify an S3 bucket for the input data. The main input is the 
+training dataset which comprises of historical bandwidth usage, and weather data for a set
+of Spot Beams (item_id's). One difference v Amazon Forecast is that all input data must benefits
+combined into a single schema. 
+
 
 
