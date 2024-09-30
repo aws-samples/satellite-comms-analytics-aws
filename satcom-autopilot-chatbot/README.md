@@ -120,6 +120,26 @@ Deploy the next stack using the following commands to provision the resources in
 
 `aws cloudformation create-stack --stack-name <stack-name> --template-body file://satcom-ts-kb-agent.yaml --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=<parameter key>,ParameterValue=<parameter value>` ....
 
-**Note** - grab the values of parameters from the output of the previous stack.Use these keys, `AmazonBedrockExecutionRoleForKnowledgeBasearn`, `CollectionArn`
+**Note** - change the default S3 bucket name to your desired S3 bucket using the parameter `ParameterKey=KnowledgeBaseArticlesBucket,ParameterValue=my-bucket-name`
 
- 
+**Note** - grab the values of parameters from the output of the previous stack. Use these keys, `AmazonBedrockExecutionRoleForKnowledgeBasearn`, `CollectionArn`
+
+## Test the RAG App in Amazon Bedrock Agents Console.
+
+1. Navigate to the Amazon Bedrock console and click on `Knowledge bases`
+The `satcom-kbase-bedrock` knowledgebase created by the CloudFormation stack will be listed there. Click on this,
+and then click on the S3 `Source Link` under Data source.
+
+Load up some relevant articles in the S3 bucket. For satellite capacity Q&A we added the following: -
+* [AWS joins the Digital IF Interoperability (DIFI) Consortium](https://aws.amazon.com/blogs/publicsector/aws-joins-the-digital-if-interoperability-difi-consortium/)
+* [Creating satellite communications data analytics pipelines with AWS serverless technologies](https://aws.amazon.com/blogs/publicsector/creating-satellite-communications-data-analytics-pipelines-aws-serverless-technologies/)
+* [Maximizing satellite communications usage with Amazon Forecast](https://aws.amazon.com/blogs/publicsector/maximizing-satellite-communications-usage-with-amazon-forecast/)
+* [Virtualizing satellite communication operations with AWS](https://aws.amazon.com/blogs/publicsector/virtualizing-satcom-operations-aws/)
+
+Production use-cases would typically ingest thousands of articles.
+
+Flip back to the Knowledge base Data source and click `Sync` to synchronize the Knowledge base with the S3 bucket contents.
+
+2. Click on `Agents`, and select the `satcom-fm-agent` created by the CFN stack. In the `Test` window ask a few questions e.g.
+
+![Capture-Bedrock-agent-test](https://github.com/user-attachments/assets/49a28a0a-4ca2-4f11-9b4e-a0c44d3e0bd1)
