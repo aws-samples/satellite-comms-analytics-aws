@@ -151,3 +151,12 @@ Use the **trace** to track the agent's path from the user input to the response 
 
 # CloudFormation to deploy satcom-ts-lexbot.yaml
 
+The final stack deploys the Amazon Lex and Lambda resources. Lex controls the entire chatbot dialog but reaches out to a 
+Lambda to provide the Fulfillment logic for both the Satellite Capacity forecasting intent `BeamForecast` and the
+Bedrock LLM agent invocation `FallbackIntent`. 
+
+The following paramaters should be modified: -
+* SatComBotS3Bucket - the name of the bucket holding the zipped Lambda function
+* SatComBotLambdaZipName - name of the lambda zip file invoking Sagemaker endpoint and Bedrock agent
+* SatComInferenceEndpoint - the SageMaker Autopilot inference endpoint as indicated in [Pre deployment](#Pre-Deployment)
+
