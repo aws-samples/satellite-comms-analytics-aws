@@ -56,7 +56,7 @@ In the following sections, we discuss the key steps to deploy the solution, incl
 An AWS account to deploy the resources. Please use the link to sign-up if you do not have an account [AWS
 account](https://signin.aws.amazon.com/signin?redirect_uri=https%3A%2F%2Fportal.aws.amazon.com%2Fbilling%2Fsignup%2Fresume&client_id=signup)
 
-**Note** Navigate to Amazon Bedrock Console and ensure that you have access to the models you are going to use in this solution e.g. Claude 3.5 Sonnet
+**Note** - navigate to Amazon Bedrock Console and ensure that you have access to the models you are going to use in this solution e.g. Claude 3.5 Sonnet
 
 Clone the repository using the command 
 `git clone https://github.com/aws-samples/satellite-comms-forecast-aws.git`
@@ -84,8 +84,12 @@ The solution deployment automation script uses 3 parameterized CloudFormation te
 
 # Cloudformation to deploy OpenSearch_serverless.yml stack
 AWS CloudFormation prepopulates stack parameters with the default values provided in the template except for ARN of the IAM role with which you are
-currently logged into your AWS account which you’d have to provide. To provide alternative input values, you can specify parameters as environment variables that are referenced in the `ParameterKey=<ParameterKey>,ParameterValue=<Value>` pairs in the following shell script’s `aws cloudformation create-stack --stack-name <stack-name> --template-body file://OpenSearch_serverless.yml --parameters ParameterKey=<parameter key>,ParameterValue=<parameter value> ParameterKey=<parameter key>,ParameterValue=<parameter value>` ....
+currently logged into your AWS account which you’d have to provide. To provide alternative input values, you can specify parameters as environment variables that are referenced in the `ParameterKey=<ParameterKey>,ParameterValue=<Value>` pairs in the following shell script’s `aws cloudformation create-stack --stack-name <stack-name> --template-body file://OpenSearch_serverless.yml --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=<parameter key>,ParameterValue=<parameter value>` ....
+
+**Note** - make sure you have sufficient IAM permissions in the IAM role you pass in to use Amazon OpenSearch
+
+**Note** - currently the stack can only be deployed in us-east-1 and us-west-2
+
+Once the Cloudformation stack creation is successful navigate to the Output section of the stack and grab the following output values AmazonBedrockExecutionRoleForKnowledgeBasearn, AOSSIndexName. We will use these values as parameters for our next stack satcom-ts-kb-agent.yaml to deploy Amazon Bedrock Knowledgebase and agents.
 
 
-
-**Currently the stack can only be deployed in us-east-1 and us-west-2**
