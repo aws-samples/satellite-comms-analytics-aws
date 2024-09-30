@@ -82,7 +82,7 @@ The solution deployment automation script uses 3 parameterized CloudFormation te
  6. IAM Roles
 
 
-# Cloudformation to deploy OpenSearch_serverless.yml stack
+# Cloudformation to deploy OpenSearch_serverless.yaml stack
 AWS CloudFormation prepopulates stack parameters with the default values provided in the template except for ARN of the IAM role with which you are
 currently logged into your AWS account which you’d have to provide. To provide alternative input values, you can specify parameters as environment variables that are referenced in the `ParameterKey=<ParameterKey>,ParameterValue=<Value>` pairs in the following shell script’s `aws cloudformation create-stack --stack-name <stack-name> --template-body file://OpenSearch_serverless.yml --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=<parameter key>,ParameterValue=<parameter value>` ....
 
@@ -92,4 +92,25 @@ currently logged into your AWS account which you’d have to provide. To provide
 
 Once the Cloudformation stack creation is successful navigate to the Output section of the stack and grab the following output values `AmazonBedrockExecutionRoleForKnowledgeBasearn`, `AOSSIndexName`. We will use these values as parameters for our next stack satcom-ts-kb-agent.yaml to deploy Amazon Bedrock Knowledgebase and agents.
 
+## Create Vector index in OpenSearch Serverless
+The previous CloudFormation stack creates an OpenSearch Service Serverless collection, but the next step will require us to create a vector index in the collection. Follow the steps outlined below: 
 
+1.  Navigate to OpenSearch Service console and click on `Collections`.
+    The `satcom-aoss-coll` collection created by the CloudFormation stack
+    will be listed there.
+
+2.  Click on the `satcom-aoss-coll` link to create a vector index for
+    storing the embeddings from the documents in S3. Next, click `Create vector index`
+
+3. Grab the vector index name from the output values of the previous stack, the default value is`satcom-aoss-index`. Input the vector
+    field name as `vector` dimensions as `1024`, choose engine types as `FAISS` and distance metric as
+    `Euclidean`. **It is required that you set these parameters exactly
+    as mentioned here because the Bedrock Knowledge Base Agent is going
+    to use these same values**.
+  
+4.  Once created the vector index is listed as part of the collection.
+
+![Capture-aoss-vector](https://github.com/user-attachments/assets/d3046262-98b6-4afd-95af-67824694abb3)
+
+
+  
