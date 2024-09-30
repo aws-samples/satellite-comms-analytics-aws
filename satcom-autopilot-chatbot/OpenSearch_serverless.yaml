@@ -1,0 +1,132 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'Serverless RAG Q&A application using Knowledge Base , Agents, Opensearch Serverless'
+
+Parameters:
+  IAMUserArn: 
+    Description: The Arn of the IAM user (or assumed role) running this CloudFormation template.
+    Type: String
+  AOSSCollectionName:
+    Default: satcom-aoss-coll
+    Type: String
+    Description: Name of the Amazon OpenSearch Service Serverless (AOSS) collection.
+    MinLength: 1
+    MaxLength: 21
+    AllowedPattern: ^[a-z0-9](-*[a-z0-9])*
+    ConstraintDescription: Must be lowercase or numbers with a length of 1-63 characters.
+  AOSSIndexName:
+    Default: satcom-aoss-index
+    Type: String
+    Description: Name of the vector index in the Amazon OpenSearch Service Serverless (AOSS) collection.
+
+Resources:
+         
+  AmazonBedrockExecutionRoleForKnowledgeBase:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join
+      - '-'
+      - - AmazonBedrockExecutionRoleForKnowledgeBase
+        - !Ref AOSSCollectionName
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: bedrock.amazonaws.com
+          Action: sts:AssumeRole
+          Condition:
+            StringEquals:
+              "aws:SourceAccount": !Sub "${AWS::AccountId}"
+            ArnLike:
+              "AWS:SourceArn": !Sub "arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:knowledge-base/*"
+      Path: /
+      Policies:
+        - PolicyName: S3ReadOnlyAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:Get*
+                  - s3:List*
+                  - s3:Describe*
+                  - s3-object-lambda:Get*
+                  - s3-object-lambda:List*
+                Resource: '*'
+        - PolicyName: AOSSAPIAccessAll
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - aoss:APIAccessAll
+                Resource: !Sub arn:aws:aoss:${AWS::Region}:${AWS::AccountId}:collection/*
+        - PolicyName: BedrockListAndInvokeModel
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - bedrock:ListCustomModels
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                Resource: !Sub arn:aws:bedrock:${AWS::Region}::foundation-model/*
+
+  
+  
+  DataAccessPolicy:
+    Type: 'AWS::OpenSearchServerless::AccessPolicy'
+    Properties:
+      Name: !Join
+      - '-'
+      - - !Ref AOSSCollectionName
+        - access-policy
+      Type: data
+      Description: Access policy for AOSS collection
+      Policy: !Sub >-
+        [{"Description":"Access for cfn user","Rules":[{"ResourceType":"index","Resource":["index/*/*"],"Permission":["aoss:*"]},
+        {"ResourceType":"collection","Resource":["collection/quickstart"],"Permission":["aoss:*"]}],
+        "Principal":["${IAMUserArn}", "${AmazonBedrockExecutionRoleForKnowledgeBase.Arn}"]}]
+  NetworkPolicy:
+    Type: 'AWS::OpenSearchServerless::SecurityPolicy'
+    Properties:
+      Name: !Join
+      - '-'
+      - - !Ref AOSSCollectionName
+        - network-policy
+      Type: network
+      Description: Network policy for AOSS collection
+      Policy: !Sub >-
+        [{"Rules":[{"ResourceType":"collection","Resource":["collection/${AOSSCollectionName}"]}, {"ResourceType":"dashboard","Resource":["collection/${AOSSCollectionName}"]}],"AllowFromPublic":true}]
+  EncryptionPolicy:
+    Type: 'AWS::OpenSearchServerless::SecurityPolicy'
+    Properties:
+      Name: !Join
+      - '-'
+      - - !Ref AOSSCollectionName
+        - security-policy
+      Type: encryption
+      Description: Encryption policy for AOSS collection
+      Policy: !Sub >-
+        {"Rules":[{"ResourceType":"collection","Resource":["collection/${AOSSCollectionName}"]}],"AWSOwnedKey":true}
+  Collection:
+    Type: 'AWS::OpenSearchServerless::Collection'
+    Properties:
+      Name: !Ref AOSSCollectionName
+      Type: VECTORSEARCH
+      Description: Collection to holds vector search data
+    DependsOn: EncryptionPolicy
+
+Outputs:
+  
+  AmazonBedrockExecutionRoleForKnowledgeBase:
+    Value: !GetAtt AmazonBedrockExecutionRoleForKnowledgeBase.Arn
+  CollectionARN:
+    Value: !GetAtt Collection.Arn
+  AOSSVectorIndexName:
+    Description: vector index
+    Value: !Ref AOSSIndexName
+  Region:
+    Description: Deployed Region
+    Value: !Ref AWS::Region

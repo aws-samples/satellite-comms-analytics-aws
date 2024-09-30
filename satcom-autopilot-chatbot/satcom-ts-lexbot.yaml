@@ -1,0 +1,298 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: "Lex bot invoking a Sagemaker Autopilot timeseries endpoint for 
+satellite capacity forecasting. Falls back to a Bedrock LLM query if user 
+asks a generic satellite related question. Lambda handles the Lex intent logic"
+
+# parameters to pass to the CFN
+Parameters:
+
+    SatComBotS3Bucket:
+      Type: String
+      Description: Bucket for all of the satcom-forecast assets
+      Default: "forecast-satcom-autopilot-capacity"
+        
+    SatComBotLambdaZipName:
+      Type: String
+      Description: Name of the lambda zip file invoking Sagemaker endpoint and Bedrock agent
+      Default: "bot-fxns/satcom-ts-bot-fxn.zip"
+        
+    SatComInferenceEndpoint:
+      Type: String
+      Description: Name of the Sagemaker inference endpoint for sat capacity forecasting
+      Default: "ep-ts-20240813-004848-trial-me-1"
+    
+    BedrockAgentId:
+      Type: String
+      Description: Id of the Bedrock agent - get from KB Agent stack outputs 
+      Default: "ODGQONEAWY"
+        
+    BedrockAgentAliasId:
+      Type: String
+      Description: Id of the Bedrock agent alias - get from KB Agent stack outputs 
+      Default: "V3YC4WZURD"
+
+# creation of AWS resources        
+Resources:
+
+  # Permissions for Lambda to invoke Sagemaker endpoint and Bedrock agent
+  ProcessLambdaFunctionExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonS3ReadOnlyAccess
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonBedrockReadOnly
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonSageMakerReadOnly
+      Policies: 
+        - PolicyDocument: # (required) JSON policy document
+            Version: '2012-10-17'
+            Statement: 
+              # allow invoking Bedrock LLM agent
+              - Action:
+                  - "bedrock:InvokeAgent"
+                Effect: Allow
+                Resource: '*'
+              # allow invoking Sagemaker inference endpoint
+              - Action:
+                  - "sagemaker:InvokeEndpointAsync"
+                  - "sagemaker:InvokeEndpointWithResponseStream"
+                  - "sagemaker:InvokeEndpoint"
+                Effect: Allow
+                Resource: '*'
+          PolicyName: SagemakerBedrockInvokePolicy # (required) give a name to this policy
+      
+  # Lambda fxn to invoke Sagemaker endpoint and Bedrock LLM agent
+  ProcessLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Lambda function to invoke Sagemaker endpoint and Bedrock LLM agent
+      Handler: lambda_function.lambda_handler
+      Timeout: 60
+      Role: !GetAtt ProcessLambdaFunctionExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref SatComBotS3Bucket
+        S3Key: !Ref SatComBotLambdaZipName
+      Runtime: python3.12
+      Environment:
+        Variables:
+          bucketName: !Ref SatComBotS3Bucket
+          endpointName: !Ref SatComInferenceEndpoint
+          agent_alias_id: !Ref BedrockAgentAliasId
+          agent_id: !Ref BedrockAgentId
+      Tags:
+      - Key: Name
+        Value: !Join [ "-", [ !Ref "AWS::StackName", ProcessLambdaFunction] ]
+
+  # Set up the Lex chatbot with intents and slots
+  # The SatCapacityBot consists of the following:
+  # 1. IAM role that is used by the bot at runtime
+  # 2. Inline Bot
+  # 3. Bot Version
+  # 4. Alias
+
+  # 1. IAM Role used by the Lex service to make runtime calls
+  BotRuntimeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lexv2.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: LexRuntimeRolePolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "polly:SynthesizeSpeech"
+                  - "comprehend:DetectSentiment"
+                Resource: "*"
+ 
+  # 2. Inline bot definition that depends on the IAM role.
+  # The bot definition consists of combining all the child resources into one CFN resource.
+  # This includes Locales, Intents, Slots, and SlotTypes.
+  SatCapacityTemplateBot:
+    DependsOn: BotRuntimeRole
+    Type: AWS::Lex::Bot
+    Properties:
+      Name: "SatelliteCapacityChatbot"
+      RoleArn: !GetAtt BotRuntimeRole.Arn
+      DataPrivacy:
+        ChildDirected: false
+      IdleSessionTTLInSeconds: 300
+      Description: "Chatbot to either get sat capacity forecast or a satellite question answered by Bedrock agent"
+      # We provide a setting that allows you to auto build the locales provided.
+      # Locale builds are also kicked off if you attempt to create a bot version 
+      # that depends on an unbuilt locale.
+      AutoBuildBotLocales: false
+      BotLocales:
+        - LocaleId: "en_US"
+          Description: "Satellite Capacity bot Locale"
+          NluConfidenceThreshold: 0.40
+          SlotTypes:
+            - Name: "SpotBeamName"
+              Description: "Satellite spot Beam e.g. SpotH3, SpotH7, SpotH12 etc"
+              SlotTypeValues:
+                - SampleValue:
+                    Value: SpotH3
+                  Synonyms: 
+                  - Value: H3
+                  - Value: h3
+                  - Value: spot3
+                  - Value: spoth3
+                  - Value: Spoth3
+                - SampleValue:
+                    Value: SpotH7
+                  Synonyms: 
+                  - Value: H7
+                  - Value: h7
+                  - Value: spot7
+                  - Value: spoth7
+                  - Value: Spoth7
+                - SampleValue:
+                    Value: SpotH12
+                  Synonyms: 
+                  - Value: H12
+                  - Value: h12
+                  - Value: spot12
+                  - Value: spoth12
+                  - Value: Spoth12
+                - SampleValue:
+                    Value: SpotH15
+                  Synonyms: 
+                  - Value: H15
+                  - Value: h15
+                  - Value: spot15
+                  - Value: spoth15
+                  - Value: Spoth15
+              ValueSelectionSetting:
+                ResolutionStrategy: TOP_RESOLUTION
+          Intents:
+            - Name: "BeamForecast"
+              Description: "Intent to retrieve satellite capacity forecast per spot beam"
+              SampleUtterances:
+                - Utterance: "Get capacity forecast"
+                - Utterance: "Show me satellite capacity for spot beam"
+                - Utterance: "capacity planning"
+                - Utterance: "spot beam forecast"
+              InitialResponseSetting: 
+                InitialResponse: 
+                  MessageGroupsList: 
+                    - Message: 
+                        PlainTextMessage: 
+                          Value: "Ok, lets get a beam forecast"
+              IntentConfirmationSetting:
+                PromptSpecification:
+                  MessageGroupsList:
+                    - Message:
+                        PlainTextMessage:
+                          Value: "Ok, {SpotSlot} will be forecasted at P50, P70, P90 quantiles. Does this sound ok?"
+                  MaxRetries: 3
+                  AllowInterrupt: false
+                DeclinationResponse:
+                  MessageGroupsList:
+                    - Message:
+                        PlainTextMessage:
+                          Value: "Okay, I will not forecast capacity"
+                  AllowInterrupt: false
+              FulfillmentCodeHook:
+                Enabled: true         # lambda logic to fulfil intent
+              SlotPriorities:
+                - Priority: 1
+                  SlotName: SpotSlot
+              Slots:
+                - Name: "SpotSlot"
+                  SlotTypeName: "SpotBeamName"
+                  ValueElicitationSetting:
+                    SlotConstraint: "Required"
+                    PromptSpecification:
+                      MessageGroupsList:
+                        - Message:
+                            PlainTextMessage:
+                              Value: "Which spot beam to forecast? (e.g SpotH3, SpotH7, SpotH12...)"
+                      MaxRetries: 3
+                      AllowInterrupt: false
+            - Name: "FallbackIntent"
+              Description: "Default intent when no other intent matches - we use this for Bedrock agent query"
+              ParentIntentSignature: "AMAZON.FallbackIntent"
+              InitialResponseSetting: 
+                InitialResponse: 
+                  MessageGroupsList: 
+                    - Message: 
+                        PlainTextMessage: 
+                          Value: "Ok, let's explore Satellite Capacity. Getting answer from Bedrock agent..."
+              FulfillmentCodeHook:
+                Enabled: true         # lambda logic to fulfil intent
+      # associate Lambda function to TestBotAlias for testing Fulfillment
+      TestBotAliasSettings: 
+        BotAliasLocaleSettings: 
+          - LocaleId: en_US
+            BotAliasLocaleSetting:
+              Enabled: true
+              CodeHookSpecification:
+                LambdaCodeHook:
+                  CodeHookInterfaceVersion: "1.0"
+                  LambdaArn: !GetAtt ProcessLambdaFunction.Arn
+   
+  # 3. Define a bot version that depends on the DRAFT version of the Lex Bot.
+  SatCapacityTemplateBotVersionWithCFN:
+    DependsOn: SatCapacityTemplateBot
+    Type: AWS::Lex::BotVersion
+    Properties:
+      BotId: !Ref SatCapacityTemplateBot
+      BotVersionLocaleSpecification:
+        - LocaleId: en_US
+          BotVersionLocaleDetails:
+            SourceBotVersion: DRAFT
+
+  # 4. Define the alias by providing the bot version created by the 
+  #    AWS::Lex::BotVersion resource above.
+  FirstBotAliasWithCFN:
+    DependsOn: SatCapacityTemplateBotVersionWithCFN
+    Type: AWS::Lex::BotAlias
+    Properties:
+      BotId: !Ref SatCapacityTemplateBot
+      BotAliasName: "SatCapacityVersion1Alias"
+      # one Lambda function per bot alias per language - use for Fulfillment
+      BotAliasLocaleSettings: 
+        - LocaleId: en_US
+          BotAliasLocaleSetting:
+            Enabled: true
+            CodeHookSpecification:
+              LambdaCodeHook:
+                CodeHookInterfaceVersion: "1.0"
+                LambdaArn: !GetAtt ProcessLambdaFunction.Arn
+      BotVersion: !GetAtt SatCapacityTemplateBotVersionWithCFN.BotVersion
+      SentimentAnalysisSettings:
+        DetectSentiment: true
+
+  # grant permission to allow the alias to invoke the Lambda function
+  LexInvokeLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !GetAtt ProcessLambdaFunction.Arn
+      Principal: "lexv2.amazonaws.com"
+      # SourceArn: !GetAtt FirstBotAliasWithCFN.Arn
+
+
+Outputs:
+  LambdaFxnName:
+    Value: !Ref ProcessLambdaFunction
