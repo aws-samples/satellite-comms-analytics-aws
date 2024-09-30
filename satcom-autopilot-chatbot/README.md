@@ -159,4 +159,16 @@ The following paramaters should be modified: -
 * SatComBotS3Bucket - the name of the bucket holding the zipped Lambda function
 * SatComBotLambdaZipName - name of the lambda zip file invoking Sagemaker endpoint and Bedrock agent
 * SatComInferenceEndpoint - the SageMaker Autopilot inference endpoint as indicated in [Pre deployment](#Pre-Deployment)
+* BedrockAgentId - the id of the Bedrock agent deployed by `satcom-ts-kb-agent.yaml`
+* BedrockAgentAliasId - the alias id of the Bedrock agent deployed by `satcom-ts-kb-agent.yaml`
+
+1. Follows the steps in the [Lambda README](./satcom-ts-bot-intent/README.md) to deploy the Lambda function to the S3 bucket listed above.
+
+2. Deploy the next stack using the following commands to provision the resources in your AWS account. 
+
+`aws cloudformation create-stack --stack-name <stack-name> --template-body file://satcom-ts-lexbot.yaml --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=<parameter key>,ParameterValue=<parameter value>` ....
+
+**Note** - the chatbot implementation is specific to the Satellite Capacity forecasting use-case. Use it as a reference for your own Lex intents, [slot types](https://docs.aws.amazon.com/lexv2/latest/dg/add-slot-types.html) etc.
+
+
 
