@@ -84,7 +84,7 @@ The solution deployment automation script uses 3 parameterized CloudFormation te
 
 # Cloudformation to deploy OpenSearch_serverless.yaml stack
 AWS CloudFormation prepopulates stack parameters with the default values provided in the template except for ARN of the IAM role with which you are
-currently logged into your AWS account which you’d have to provide. To provide alternative input values, you can specify parameters as environment variables that are referenced in the `ParameterKey=<ParameterKey>,ParameterValue=<Value>` pairs in the following shell script’s `aws cloudformation create-stack --stack-name <stack-name> --template-body file://OpenSearch_serverless.yml --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=<parameter key>,ParameterValue=<parameter value>` ....
+currently logged into your AWS account which you’d have to provide. To provide alternative input values, you can specify parameters as environment variables that are referenced in the `ParameterKey=<ParameterKey>,ParameterValue=<Value>` pairs in the following shell script’s `aws cloudformation create-stack --stack-name <stack-name> --template-body file://OpenSearch_serverless.yaml --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=<parameter key>,ParameterValue=<parameter value>` ....
 
 **Note** - make sure you have sufficient IAM permissions in the IAM role you pass in to use Amazon OpenSearch
 
@@ -114,4 +114,12 @@ The previous CloudFormation stack creates an OpenSearch Service Serverless colle
 ![Capture-aoss-vector](https://github.com/user-attachments/assets/d3046262-98b6-4afd-95af-67824694abb3)
 
 
-  
+# CloudFormation to deploy satcom-ts-kb-agent.yaml
+
+Deploy the next stack using the following commands to provision the resources in your AWS account. 
+
+`aws cloudformation create-stack --stack-name <stack-name> --template-body file://satcom-ts-kb-agent.yaml --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=<parameter key>,ParameterValue=<parameter value>` ....
+
+**Note** - grab the values of parameters from the output of the previous stack.Use these keys, `AmazonBedrockExecutionRoleForKnowledgeBasearn`, `CollectionArn`
+
+ 
