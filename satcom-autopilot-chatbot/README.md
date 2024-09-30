@@ -69,12 +69,15 @@ create a SageMaker Autopilot time-series real-time inference endpoint. At the en
 
 
 # Deployment Steps
-The solution deployment automation script uses 3 parameterized CloudFormation template, OpenSearch_serverless.yaml, satcom-ts-kb-agent.yaml, and satcom-ts-lexbot.yaml to automate provisioning of following solution resources:
+**Note** - this project shares many of the same deployment steps as [this project](https://github.com/aws-samples/amazon-bedrock-rag-knowledgebases-agents-cloudformation) hence
+feel free to use it as an additional reference.
 
- 1. AWS Lambda
- 2. OpenSearch Service Serverless collection
- 3. Amazon Bedrock KnowledgeBase
- 4. Amazon Bedrock Agent
+The solution deployment automation script uses 3 parameterized CloudFormation template, OpenSearch_serverless.yaml, satcom-ts-kb-agent.yaml, and satcom-ts-lexbot.yaml to automate provisioning of following solution resources:
+ 
+ 1. OpenSearch Service Serverless collection
+ 2. Amazon Bedrock KnowledgeBase
+ 3. Amazon Bedrock Agent
+ 4. AWS Lambda 
  5. Amazon Lex chatbot intents
  6. IAM Roles
 
