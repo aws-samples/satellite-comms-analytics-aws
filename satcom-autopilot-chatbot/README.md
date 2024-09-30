@@ -90,6 +90,6 @@ currently logged into your AWS account which you’d have to provide. To provide
 
 **Note** - currently the stack can only be deployed in us-east-1 and us-west-2
 
-Once the Cloudformation stack creation is successful navigate to the Output section of the stack and grab the following output values AmazonBedrockExecutionRoleForKnowledgeBasearn, AOSSIndexName. We will use these values as parameters for our next stack satcom-ts-kb-agent.yaml to deploy Amazon Bedrock Knowledgebase and agents.
+Once the Cloudformation stack creation is successful navigate to the Output section of the stack and grab the following output values `AmazonBedrockExecutionRoleForKnowledgeBasearn`, `AOSSIndexName`. We will use these values as parameters for our next stack satcom-ts-kb-agent.yaml to deploy Amazon Bedrock Knowledgebase and agents.
 
 
