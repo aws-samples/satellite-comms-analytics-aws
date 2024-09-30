@@ -184,4 +184,9 @@ Finally, test the Bedrock LLM integration with Lex by asking a satellite related
 
 ![Capture-Lex-bedrock](https://github.com/user-attachments/assets/05fa051e-a8e9-4a11-a48e-3a2e7d740f1d)
 
+This completes the satcom-autopilot-chatbot deployment. Happy chatting!
 
+# Clean up
+
+To avoid incurring future charges, delete the resources. You can do this
+by first deleting all the files from the S3 buckets, and then deleting the CloudFormation stacks. 
