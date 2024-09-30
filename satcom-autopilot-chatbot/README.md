@@ -170,5 +170,18 @@ The following paramaters should be modified: -
 
 **Note** - the chatbot implementation is specific to the Satellite Capacity forecasting use-case. Use it as a reference for your own Lex intents, [slot types](https://docs.aws.amazon.com/lexv2/latest/dg/add-slot-types.html) etc.
 
+3. Open Amazon Lex and click on the generated Bot `SatelliteCapacityChatbot`. Navigate to `Intents` which should look as follows: -
+
+![Capture-Lex-intents](https://github.com/user-attachments/assets/09024a97-8866-4cbc-8516-e302b6fdf494)
+
+The CFN creates all of the Lex resources but does not build the bot. Hence click `Build`. 
+
+4. Click `Test` in the Lex console upper right corner, and test the `BeamForecast` intent
+
+![Capture-Lex-beamforecast](https://github.com/user-attachments/assets/d2b91534-08d3-4959-a887-420c2e55f282)
+
+Finally, test the Bedrock LLM integration with Lex by asking a satellite related question: -
+
+![Capture-Lex-bedrock](https://github.com/user-attachments/assets/05fa051e-a8e9-4a11-a48e-3a2e7d740f1d)
 
 
