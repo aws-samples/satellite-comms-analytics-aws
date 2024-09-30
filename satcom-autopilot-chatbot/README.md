@@ -65,17 +65,18 @@ The SageMaker endpoint needs to be available for this project to use. Follow the
 [here](https://github.com/aws-samples/satellite-comms-forecast-aws/tree/main/autopilot-notebook) to 
 create a SageMaker Autopilot time-series real-time inference endpoint. At the end you should have a model as follows: -
 
-![Capture-Sage-endpoint-bluracctid](https://github.com/user-attachments/assets/32bce31e-6656-45e0-9123-ba0c64314721)
+![Capture-Sage-endpoint-bluracctid](https://github.com/user-attachments/assets/86e68bda-f557-45c4-9ce3-f2f3c349e111)
 
 
 # Deployment Steps
-The solution deployment automation script uses two parameterized CloudFormation template, OpenSearch_serverless.yml and AmazonBedrock_kb_agents.yml, to automate provisioning of following solution resources:
+The solution deployment automation script uses 3 parameterized CloudFormation template, OpenSearch_serverless.yaml, satcom-ts-kb-agent.yaml, and satcom-ts-lexbot.yaml to automate provisioning of following solution resources:
 
- 1. OpenSearch Service Serverless collection
- 2. Amazon S3 Bucket (DataSource)
+ 1. AWS Lambda
+ 2. OpenSearch Service Serverless collection
  3. Amazon Bedrock KnowledgeBase
  4. Amazon Bedrock Agent
- 5. IAM Roles
+ 5. Amazon Lex chatbot intents
+ 6. IAM Roles
 
 
 # Cloudformation to deploy OpenSearch_serverless.yml stack
