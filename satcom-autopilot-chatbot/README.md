@@ -18,3 +18,15 @@ forecasted capacity needs, accuracy metrics, and which attributes most impact th
 ### Architecture
 The architecture of the system is as follows: -
 
+![satcapacitybot-arch drawio](https://github.com/user-attachments/assets/273e9557-edf1-4414-8bc3-fe864691d077)
+
+Users interact with the application via either Amazon Lex directly or a Messaging platform such as Facebook, Slack or Twilio. This is achieved
+via a [Lex channel integration][https://docs.aws.amazon.com/lexv2/latest/dg/deploying-messaging-platform.html].
+
+This project provides the infrastructure, via a series of Cloudformation templates, for Lex, Lambda, Sagemaker endpoint, 
+Bedrock knowledgebase and agent, and S3 assets. 
+
+Depending on the user’s question the bot goes one of 2 different paths: -
+* capacity forecast - if the user asks “get capacity” or similar utterances, we invoke the BeamForecast Lex intent, which in turn calls a Lambda function to invoke a Sagemaker Autopilot timeseries model endpoint. The model was trained on generated, synthetic satellite data - the Notebook is available at https://github.com/aws-samples/satellite-comms-forecast-aws/tree/main/autopilot-notebook 
+* satellite communication topics - if the user asks a question related to the field of satellite communication, but not directly requesting a specific forecast, the FallbackIntent is invoked. The same Lambda handles this path, but instead invokes a Claude3 Bedrock agent associated with a Bedrock knowledge-base consisting of AWS Satellite Communication blogs. 
+
