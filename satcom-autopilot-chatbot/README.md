@@ -103,12 +103,13 @@ The previous CloudFormation stack creates an OpenSearch Service Serverless colle
     storing the embeddings from the documents in S3. Next, click `Create vector index`
 
 3. Grab the vector index name from the output values of the previous stack, the default value is`satcom-aoss-index`. Input the vector
-    field name as `vector` dimensions as `1024`, choose engine types as `FAISS` and distance metric as
+    field name as `vector` [dimensions](https://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-base-setup.html) as `1024`,
+    choose engine types as `FAISS` and distance metric as
     `Euclidean`. **It is required that you set these parameters exactly
     as mentioned here because the Bedrock Knowledge Base Agent is going
     to use these same values**.
   
-4.  Once created the vector index is listed as part of the collection.
+5.  Once created the vector index is listed as part of the collection.
 
 ![Capture-aoss-vector](https://github.com/user-attachments/assets/d3046262-98b6-4afd-95af-67824694abb3)
 
