@@ -1,6 +1,6 @@
-# Lambda function which interacts with Lex to provide users either
-# a satellite capacity spot beam forecast provided by a Sagemaker model endpoint,
-# or a response to generic satellite communications question via a Bedrock-based LLM
+# Lambda function which interacts with Amazon Lex to provide users either
+# a satellite capacity spot beam forecast provided by a Sagemaker timeseries model endpoint,
+# or a response to generic satellite communications questions via a Bedrock-based LLM
 
 import json
 import boto3
@@ -69,6 +69,7 @@ def lambda_handler(event, context):
         # we use minimal, pre-canned Spot beam inputs to the Sagemaker endpoint
         # in a production use-case the S3 key would be a programmatic retrieval based on
         # date, time, spot-beam parameters
+        # replace these csv's with your input csv's to your SageMaker endpoint
         if spotBeam == 'SpotH3':
             key = 'dataset/rtinf/satcom-autopilot-cap-SpotH3_1724274086.csv'
         elif spotBeam == 'SpotH7':
@@ -129,7 +130,6 @@ def lambda_handler(event, context):
 
     else:
         raise Exception('Intent with name ' + intent_name + ' not supported')
-
 
     return None
 
