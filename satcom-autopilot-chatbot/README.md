@@ -143,3 +143,11 @@ Flip back to the Knowledge base Data source and click `Sync` to synchronize the 
 2. Click on `Agents`, and select the `satcom-fm-agent` created by the CFN stack. In the `Test` window ask a few questions e.g.
 
 ![Capture-Bedrock-agent-test](https://github.com/user-attachments/assets/49a28a0a-4ca2-4f11-9b4e-a0c44d3e0bd1)
+
+3. Also notice that the each response from an Amazon Bedrock agent is accompanied by a **trace** that details the steps being orchestrated by the agent. The **trace** helps you follow the agent's reasoning process that leads it to the response it gives at that point in the conversation.
+
+Use the **trace** to track the agent's path from the user input to the response it returns. The trace provides information about the inputs to the action groups that the agent invokes and the knowledge bases that it queries to respond to the user.
+
+
+# CloudFormation to deploy satcom-ts-lexbot.yaml
+
