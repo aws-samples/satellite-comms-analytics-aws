@@ -56,10 +56,17 @@ In the following sections, we discuss the key steps to deploy the solution, incl
 An AWS account to deploy the resources. Please use the link to sign-up if you do not have an account [AWS
 account](https://signin.aws.amazon.com/signin?redirect_uri=https%3A%2F%2Fportal.aws.amazon.com%2Fbilling%2Fsignup%2Fresume&client_id=signup)
 
-**Note** Navigate to Amazon Bedrock Console and ensure that you have access to the models you are going to use in this solution
+**Note** Navigate to Amazon Bedrock Console and ensure that you have access to the models you are going to use in this solution e.g. Claude 3.5 Sonnet
 
 Clone the repository using the command 
-_git clone https://github.com/aws-samples/satellite-comms-forecast-aws.git_
+`git clone https://github.com/aws-samples/satellite-comms-forecast-aws.git`
+
+The SageMaker endpoint needs to be available for this project to use. Follow the steps 
+[here](https://github.com/aws-samples/satellite-comms-forecast-aws/tree/main/autopilot-notebook) to 
+create a SageMaker Autopilot time-series real-time inference endpoint. At the end you should have a model as follows: -
+
+![Capture-Sage-endpoint-bluracctid](https://github.com/user-attachments/assets/32bce31e-6656-45e0-9123-ba0c64314721)
+
 
 # Deployment Steps
 The solution deployment automation script uses two parameterized CloudFormation template, OpenSearch_serverless.yml and AmazonBedrock_kb_agents.yml, to automate provisioning of following solution resources:
