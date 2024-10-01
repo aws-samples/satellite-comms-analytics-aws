@@ -162,7 +162,9 @@ The following paramaters should be modified: -
 * BedrockAgentId - the id of the Bedrock agent deployed by `satcom-ts-kb-agent.yaml`
 * BedrockAgentAliasId - the alias id of the Bedrock agent deployed by `satcom-ts-kb-agent.yaml`
 
-1. Deploy the Lambda function to the S3 bucket listed above. There are several ways to automate the deployment of Lambdas: one is to embed the code directly in the yaml file, another is to reference the code as a zip file in an Amazon S3 bucket. We use the latter mechanism. Simply zip up the Python function, `lambda_function.py` in the satcom-ts-bot-intent folder, and upload it to the SatComBotS3Bucket. ![Capture-S3-lambda-zip](https://github.com/user-attachments/assets/0ee48f43-7155-4c97-bfab-9582681dbfdb)
+1. Deploy the Lambda function to the S3 bucket listed above. There are several ways to automate the deployment of Lambdas: one is to embed the code directly in the yaml file, another is to reference the code as a zip file in an Amazon S3 bucket. We use the latter mechanism. Simply zip up the Python function, `lambda_function.py` in the satcom-ts-bot-intent folder, and upload it to the SatComBotS3Bucket.
+
+![Capture-S3-lambda-zip](https://github.com/user-attachments/assets/0ee48f43-7155-4c97-bfab-9582681dbfdb)
 
 2. Deploy the next stack using the following commands to provision the resources in your AWS account. 
 
