@@ -1,6 +1,6 @@
-## Satellite Capacity chatbot
+# Satellite Capacity chatbot
 
-### Description
+## Description
 The Satellite Capacity bot is a chatbot which either returns a satellite capacity forecast, or provides targeted responses 
 to satellite related questions, depending on the user’s input questions. 
 
@@ -10,12 +10,12 @@ retrieve answers to domain-specific questions.
 
 This sub-project is associated with the blog [here](https://aws.amazon.com/blogs/publicsector/maximizing-satellite-communications-usage-with-amazon-forecast/).
 It focuses on a Maritime shipping use-case, 
-using [Amazon SageMaker Autopilot Timer-series](https://docs.aws.amazon.com/sagemaker/latest/dg/timeseries-forecasting-deploy-models.html) to build 
+using [Amazon SageMaker Autopilot Time-series](https://docs.aws.amazon.com/sagemaker/latest/dg/timeseries-forecasting-deploy-models.html) to build 
 a time series predictor model for each satellite beam in the ship(s) path, accounting for the impact of weather
 conditions in a given location. It then renders results in [Amazon QuickSight](https://aws.amazon.com/quicksight/) BI tooling, displaying
 forecasted capacity needs, accuracy metrics, and which attributes most impact the model.
 
-### Architecture
+## Architecture
 The architecture of the system is as follows: -
 
 ![satcapacitybot-arch drawio](https://github.com/user-attachments/assets/273e9557-edf1-4414-8bc3-fe864691d077)
@@ -28,13 +28,13 @@ Bedrock knowledgebase and agent, and S3 assets.
 
 Depending on the user’s question the bot goes one of 2 different paths: -
 * capacity forecast - if the user asks “get capacity” or similar utterances, we invoke the BeamForecast Lex intent, which in turn calls a Lambda function to invoke a Sagemaker Autopilot timeseries model endpoint. The model was trained on generated, synthetic satellite data - the Notebook is available at https://github.com/aws-samples/satellite-comms-forecast-aws/tree/main/autopilot-notebook 
-* satellite communication topics - if the user asks a question related to the field of satellite communication, but not directly requesting a specific forecast, the FallbackIntent is invoked. The same Lambda handles this path, but instead invokes a Claude3 Bedrock agent associated with a Bedrock knowledge-base consisting of AWS Satellite Communication blogs. 
+* satellite communication topics - if the user asks a question related to the field of satellite communication, but not directly requesting a specific forecast, the FallbackIntent is invoked. The same Lambda handles this path, but instead invokes a Claude3 Bedrock agent associated with a Bedrock knowledge-base consisting of AWS Aerospace and Satellite blogs. 
 
 As illustrated in the architecture diagram, we use the following AWS services:
 
 - [SageMaker](https://aws.amazon.com/sagemaker/) to invoke the Satellite Capacity Autopilot inference endpoint for spot beam predictions
 - [Bedrock](https://aws.amazon.com/bedrock/) for access to the FMs for
-  embedding and text generation as well as for the knowledge base agent.
+  embedding and text generation as well as the knowledge base agent.
 - [Lambda](https://aws.amazon.com/lambda/) to call either the Sagemaker endpoint with the BeamForecast Lex intent or the Bedrock LLM KB agent via the Fallback intent.
 - [OpenSearch Service Serverless with vector
   search](https://aws.amazon.com/opensearch-service/serverless-vector-engine/)
@@ -48,17 +48,17 @@ As illustrated in the architecture diagram, we use the following AWS services:
   creating the entire solution stack through infrastructure as code.
 
 
-# Deployment Guide 
+## Deployment Guide 
 
-In the following sections, we discuss the key steps to deploy the solution, including pre-deployment and post-deployment.
+In the following sections, we discuss the key steps to deploy the solution, including pre and post-deployment.
 
-# Pre-Deployment
-An AWS account to deploy the resources. Please use the link to sign-up if you do not have an account [AWS
+## Pre-Deployment
+An AWS account to deploy the resources is required. Please use the link to sign-up if you do not have an account [AWS
 account](https://signin.aws.amazon.com/signin?redirect_uri=https%3A%2F%2Fportal.aws.amazon.com%2Fbilling%2Fsignup%2Fresume&client_id=signup)
 
 **Note** - navigate to Amazon Bedrock Console and ensure that you have access to the models you are going to use in this solution e.g. Claude 3.5 Sonnet
 
-Clone the repository using the command 
+Clone the entire repository using the command 
 `git clone https://github.com/aws-samples/satellite-comms-forecast-aws.git`
 
 The SageMaker endpoint needs to be available for this project to use. Follow the steps 
@@ -68,11 +68,11 @@ create a SageMaker Autopilot time-series real-time inference endpoint. At the en
 ![Capture-Sage-endpoint-bluracctid](https://github.com/user-attachments/assets/86e68bda-f557-45c4-9ce3-f2f3c349e111)
 
 
-# Deployment Steps
+## Deployment Steps
 **Note** - this project shares many of the same deployment steps as [this project](https://github.com/aws-samples/amazon-bedrock-rag-knowledgebases-agents-cloudformation) hence
 feel free to use it as an additional reference.
 
-The solution deployment automation script uses 3 parameterized CloudFormation template, OpenSearch_serverless.yaml, satcom-ts-kb-agent.yaml, and satcom-ts-lexbot.yaml to automate provisioning of following solution resources:
+The solution deployment automation script uses 3 parameterized CloudFormation template, OpenSearch_serverless.yaml, satcom-ts-kb-agent.yaml, and satcom-ts-lexbot.yaml to automate provisioning of the following solution resources:
  
  1. OpenSearch Service Serverless collection
  2. Amazon Bedrock KnowledgeBase
@@ -82,18 +82,18 @@ The solution deployment automation script uses 3 parameterized CloudFormation te
  6. IAM Roles
 
 
-# Cloudformation to deploy OpenSearch_serverless.yaml stack
+## Cloudformation to deploy OpenSearch_serverless.yaml stack
 AWS CloudFormation prepopulates stack parameters with the default values provided in the template except for ARN of the IAM role with which you are
-currently logged into your AWS account which you’d have to provide. To provide alternative input values, you can specify parameters as environment variables that are referenced in the `ParameterKey=<ParameterKey>,ParameterValue=<Value>` pairs in the following shell script’s `aws cloudformation create-stack --stack-name <stack-name> --template-body file://OpenSearch_serverless.yaml --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=<parameter key>,ParameterValue=<parameter value>` ....
+currently logged into your AWS account which you must provide. To provide alternative input values, you can specify parameters as environment variables that are referenced in the `ParameterKey=<ParameterKey>,ParameterValue=<Value>` pairs in the following shell script’s `aws cloudformation create-stack --stack-name <stack-name> --template-body file://OpenSearch_serverless.yaml --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=<parameter key>,ParameterValue=<parameter value>` ....
 
 **Note** - make sure you have sufficient IAM permissions in the IAM role you pass in to use Amazon OpenSearch
 
-**Note** - currently the stack can only be deployed in us-east-1 and us-west-2
+**Note** - some of the assets may not be available in all regions. The stacks were tested in us-east-1 and us-west-2.
 
 Once the Cloudformation stack creation is successful navigate to the Output section of the stack and grab the following output values `AmazonBedrockExecutionRoleForKnowledgeBasearn`, `AOSSIndexName`. We will use these values as parameters for our next stack satcom-ts-kb-agent.yaml to deploy Amazon Bedrock Knowledgebase and agents.
 
-## Create Vector index in OpenSearch Serverless
-The previous CloudFormation stack creates an OpenSearch Service Serverless collection, but the next step will require us to create a vector index in the collection. Follow the steps outlined below: 
+### Create Vector index in OpenSearch Serverless
+The previous CloudFormation stack creates an OpenSearch Service Serverless collection, but the next step will require us to create a vector index in the generated collection. Follow the steps outlined below: 
 
 1.  Navigate to OpenSearch Service console and click on `Collections`.
     The `satcom-aoss-coll` collection created by the CloudFormation stack
@@ -114,9 +114,9 @@ The previous CloudFormation stack creates an OpenSearch Service Serverless colle
 ![Capture-aoss-vector](https://github.com/user-attachments/assets/d3046262-98b6-4afd-95af-67824694abb3)
 
 
-# CloudFormation to deploy satcom-ts-kb-agent.yaml
+## CloudFormation to deploy satcom-ts-kb-agent.yaml
 
-Deploy the next stack using the following commands to provision the resources in your AWS account. 
+Deploy the next stack using the following commands to provision the Bedrock knowledge base and agent resources in your AWS account. 
 
 `aws cloudformation create-stack --stack-name <stack-name> --template-body file://satcom-ts-kb-agent.yaml --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=<parameter key>,ParameterValue=<parameter value>` ....
 
@@ -124,7 +124,7 @@ Deploy the next stack using the following commands to provision the resources in
 
 **Note** - grab the values of parameters from the output of the previous stack. Use these keys, `AmazonBedrockExecutionRoleForKnowledgeBasearn`, `CollectionArn`
 
-## Test the RAG App in Amazon Bedrock Agents Console.
+### Test the RAG App in Amazon Bedrock Agents Console.
 
 1. Navigate to the Amazon Bedrock console and click on `Knowledge bases`
 The `satcom-kbase-bedrock` knowledgebase created by the CloudFormation stack will be listed there. Click on this,
@@ -144,12 +144,12 @@ Flip back to the Knowledge base Data source and click `Sync` to synchronize the 
 
 ![Capture-Bedrock-agent-test](https://github.com/user-attachments/assets/49a28a0a-4ca2-4f11-9b4e-a0c44d3e0bd1)
 
-3. Also notice that the each response from an Amazon Bedrock agent is accompanied by a **trace** that details the steps being orchestrated by the agent. The **trace** helps you follow the agent's reasoning process that leads it to the response it gives at that point in the conversation.
+3. Also notice that each response from the Amazon Bedrock agent is accompanied by a **trace** that details the steps being orchestrated by the agent. The **trace** helps you follow the agent's reasoning process that led it to the response given at that point in the conversation.
 
 Use the **trace** to track the agent's path from the user input to the response it returns. The trace provides information about the inputs to the action groups that the agent invokes and the knowledge bases that it queries to respond to the user.
 
 
-# CloudFormation to deploy satcom-ts-lexbot.yaml
+## CloudFormation to deploy satcom-ts-lexbot.yaml
 
 The final stack deploys the Amazon Lex and Lambda resources. Lex controls the entire chatbot dialog but reaches out to a 
 Lambda to provide the Fulfillment logic for both the Satellite Capacity forecasting intent `BeamForecast` and the
@@ -188,7 +188,7 @@ Finally, test the Bedrock LLM integration with Lex by asking a satellite related
 
 This completes the satcom-autopilot-chatbot deployment. Happy chatting!
 
-# Clean up
+## Clean up
 
 To avoid incurring future charges, delete the resources. You can do this
 by first deleting all the files from the S3 buckets, and then deleting the CloudFormation stacks. 
