@@ -166,19 +166,23 @@ The following paramaters should be modified: -
 
 ![Capture-S3-lambda-zip](https://github.com/user-attachments/assets/0ee48f43-7155-4c97-bfab-9582681dbfdb)
 
-2. Deploy the next stack using the following commands to provision the resources in your AWS account. 
+2. In addition to the SageMaker model endpoint name, the [invoke_endpoint](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sagemaker-runtime/client/invoke_endpoint.html) API requires a `Body` parameter. Autopilot timeseries inference requires a small (8 or more rows) amount of input data with the same format as the desired prediction output (same column headings etc).
+
+Sample input files have been provided at [endpoint-sample-input-data](endpoint-sample-input-data). Copy all of these csv files to your dataset/rtinf folder. 
+
+3. Deploy the next stack using the following commands to provision the resources in your AWS account. 
 
 `aws cloudformation create-stack --stack-name <stack-name> --template-body file://satcom-ts-lexbot.yaml --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=<parameter key>,ParameterValue=<parameter value>` ....
 
 **Note** - the chatbot implementation is specific to the Satellite Capacity forecasting use-case. Use it as a reference for your own Lex intents, [slot types](https://docs.aws.amazon.com/lexv2/latest/dg/add-slot-types.html) etc.
 
-3. Open Amazon Lex and click on the generated Bot `SatelliteCapacityChatbot`. Navigate to `Intents` which should look as follows: -
+4. Open Amazon Lex and click on the generated Bot `SatelliteCapacityChatbot`. Navigate to `Intents` which should look as follows: -
 
 ![Capture-Lex-intents](https://github.com/user-attachments/assets/09024a97-8866-4cbc-8516-e302b6fdf494)
 
 The CFN creates all of the Lex resources but does not build the bot. Hence click `Build`. 
 
-4. Click `Test` in the Lex console upper right corner, and test the `BeamForecast` intent
+5. Click `Test` in the Lex console upper right corner, and test the `BeamForecast` intent
 
 ![Capture-Lex-beamforecast](https://github.com/user-attachments/assets/d2b91534-08d3-4959-a887-420c2e55f282)
 
