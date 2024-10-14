@@ -201,3 +201,8 @@ This completes the satcom-autopilot-chatbot deployment. Happy chatting!
 
 To avoid incurring future charges, delete the resources. You can do this
 by first deleting all the files from the S3 buckets, and then deleting the CloudFormation stacks. 
+
+## Troubleshooting
+
+1. No satellite capacity forecast results - if the bot merely returns "Intent BeamForecast is fulfilled" there may be an issue with the `Body` input data being passed to the the [invoke_endpoint](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sagemaker-runtime/client/invoke_endpoint.html) API. Recheck your S3 folder and file structure in [Step 2 of the final CFN deployment](#CloudFormation to deploy satcom-ts-lexbot.yaml)
+2. 
