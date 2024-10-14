@@ -169,6 +169,11 @@ The following paramaters should be modified: -
 2. In addition to the SageMaker model endpoint name, the [invoke_endpoint](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sagemaker-runtime/client/invoke_endpoint.html) API requires a `Body` parameter. Autopilot timeseries inference requires a small (8 or more rows) amount of input data with the same format as the desired prediction output (same column headings etc).
 
 Sample input files have been provided at [endpoint-sample-input-data](endpoint-sample-input-data). Copy all of these csv files to your dataset/rtinf folder in your S3 bucket.
+![Capture-s3-input-sample-files](https://github.com/user-attachments/assets/cb308625-4968-4a4a-95ea-e540a2c30e10)
+
+**Note** - if you upload to a different folder structure, change the `S3_FOLDER_PREFIX` in the [Bot Lambda function](satcom-ts-bot-intent/lambda_function.py)
+
+**Note** - if you wish to use the generated results from the `inf` mode of [satcom-timeseries-autopilot-gen-fxn](..\satcom-timeseries-autopilot-gen-fxn), change the csv filenames in the [Bot Lambda function](satcom-ts-bot-intent/lambda_function.py)
 
 3. Deploy the next stack using the following commands to provision the resources in your AWS account. 
 
