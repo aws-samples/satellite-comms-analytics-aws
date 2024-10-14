@@ -18,6 +18,10 @@ import random
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
+# S3 folder location of Real Time inference sample input files to be passed to invoke_endpoint API
+# change this if you use a different S3 folder structure
+S3_FOLDER_PREFIX = 'dataset/rtinf/'
+
 
 def lambda_handler(event, context):
 
@@ -71,13 +75,13 @@ def lambda_handler(event, context):
         # date, time, spot-beam parameters
         # replace these csv's with your input csv's to your SageMaker endpoint
         if spotBeam == 'SpotH3':
-            key = 'dataset/rtinf/satcom-autopilot-cap-SpotH3_1724274086.csv'
+            key = S3_FOLDER_PREFIX + 'satcom-autopilot-cap-SpotH3_1724274086.csv'
         elif spotBeam == 'SpotH7':
-            key = 'dataset/rtinf/satcom-autopilot-cap-SpotH7_1724274106.csv'
+            key = S3_FOLDER_PREFIX + 'satcom-autopilot-cap-SpotH7_1724274106.csv'
         elif spotBeam == 'SpotH12':
-            key = 'dataset/rtinf/satcom-autopilot-cap-SpotH12_1724274132.csv'
+            key = S3_FOLDER_PREFIX + 'satcom-autopilot-cap-SpotH12_1724274132.csv'
         elif spotBeam == 'SpotH15':
-            key = 'dataset/rtinf/satcom-autopilot-cap-SpotH15_1724264904.csv'
+            key = S3_FOLDER_PREFIX + 'satcom-autopilot-cap-SpotH15_1724264904.csv'
         else:
             raise Exception('spotBeam ' + spotBeam + ' not supported')
             
