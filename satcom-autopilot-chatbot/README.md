@@ -173,7 +173,8 @@ Sample input files have been provided at [endpoint-sample-input-data](endpoint-s
 
 **Note** - if you upload to a different folder structure, change the `S3_FOLDER_PREFIX` in the [Bot Lambda function](satcom-ts-bot-intent/lambda_function.py)
 
-**Note** - if you wish to use the generated results from the `inf` mode of [satcom-timeseries-autopilot-gen-fxn](..\satcom-timeseries-autopilot-gen-fxn), change the csv filenames in the [Bot Lambda function](satcom-ts-bot-intent/lambda_function.py)
+**Note** - if you wish to use the generated results from the `inf` mode of [satcom-timeseries-autopilot-gen-fxn](/satellite-comms-forecast-aws
+/satcom-timeseries-autopilot-gen-fxn/), change the csv filenames in the [Bot Lambda function](satcom-ts-bot-intent/lambda_function.py)
 
 3. Deploy the next stack using the following commands to provision the resources in your AWS account. 
 
