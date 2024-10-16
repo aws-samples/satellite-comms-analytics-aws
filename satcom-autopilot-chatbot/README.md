@@ -207,5 +207,6 @@ by first deleting all the files from the S3 buckets, and then deleting the Cloud
 1. No satellite capacity forecast results - if the bot merely returns "Intent BeamForecast is fulfilled" there may be an issue with the `Body` input data being passed to the the [invoke_endpoint](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sagemaker-runtime/client/invoke_endpoint.html) API. Recheck your S3 folder and file structure in Step 2 of the final CFN deployment.
 2. LLM path returns 'Sorry, I am unable to assist you with this request.' - this can occur if you have not loaded a sufficient number of articles in the Amazon Bedrock KnowledgeBase. Also, don't forget to `Sync` the articles after uploading.
 3. It takes a few seconds to get a response from the SageMaker endpoint - this is normal. This problem type requires a larger payload for the history (not a single record as in regression) — then it has to do predictions for all the underlying base models.  Predictions are per quantile and for each step. Finally it has to look up weights from the ensemble and do that math.
-4. 
+4. It takes a few seconds to get a response from the Bedrock agent - this is also normal. First the embeddings model is invoked, then semantic search occurs on the Opensearch vector database. Finally the LLM (Claude 3.5 in this case) summarizes the response. 
+
 
