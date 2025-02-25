@@ -173,7 +173,7 @@ The following paramaters should be modified: -
 
 2. In addition to the SageMaker model endpoint name, the [invoke_endpoint](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sagemaker-runtime/client/invoke_endpoint.html) API requires a `Body` parameter. Autopilot timeseries inference requires a small (8 or more rows) amount of input data with the same format as the desired prediction output (same column headings etc).
 
-Sample input files have been provided at [endpoint-sample-input-data](endpoint-sample-input-data). Copy all of these csv files to your dataset/rtinf folder in your S3 bucket.
+Sample input files have been provided at [endpoint-sample-input-data](endpoint-sample-input-data). Copy all of these csv files to your `dataset/rtinf` folder in your S3 bucket.
 ![Capture-s3-input-sample-files](https://github.com/user-attachments/assets/cb308625-4968-4a4a-95ea-e540a2c30e10)
 
 **Note** - if you upload to a different folder structure, change the `S3_FOLDER_PREFIX` in the [Bot Lambda function](satcom-ts-bot-intent/lambda_function.py)
@@ -194,7 +194,7 @@ Sample input files have been provided at [endpoint-sample-input-data](endpoint-s
 
 5. Open Amazon Lex and click on the generated Bot `SatelliteCapacityChatbot`. Navigate to `Intents` which should look as follows: -
 
-![Capture-Lex-intents](https://github.com/user-attachments/assets/09024a97-8866-4cbc-8516-e302b6fdf494)
+![Capture-intents](https://github.com/user-attachments/assets/b4f85c86-c233-4fad-a3e2-dc86291c3a85)
 
 The CFN creates all of the Lex resources but does not build the bot. Hence click `Build`. 
 
