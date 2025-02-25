@@ -200,11 +200,11 @@ Sample input files have been provided at [endpoint-sample-input-data](endpoint-s
 
 The CFN creates all of the Lex resources but does not build the bot. Hence click `Build`. 
 
-6. Click `Test` in the Lex console upper right corner, and test the `BeamForecast` intent
+6. Click `Test` in the Lex console upper right corner, and test the `BeamForecast` intent. You should get the first few lines of a Satellite Capacity forecast for different spot beams. 
 
 ![Capture-Lex-beamforecast](https://github.com/user-attachments/assets/d2b91534-08d3-4959-a887-420c2e55f282)
 
-Now test ImageIntent - type in "get noise type" then select one of the sample noise types to evaluate the LLM responses: -
+Now test ImageIntent - type in "get noise type" then select one of the sample noise types to evaluate the LLM responses for noise or interference type. The model should also tell you the modulation scheme (eg 16APSK)
 
 ![Capture-iq-1](https://github.com/user-attachments/assets/09e9bc95-38b9-42d0-86a8-4283e17d2ee0)
 ![Capture-iq-2](https://github.com/user-attachments/assets/59f0eee8-d779-4b60-aa7c-8508d8739364)
