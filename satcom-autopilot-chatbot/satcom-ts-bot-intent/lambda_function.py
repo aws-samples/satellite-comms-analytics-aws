@@ -21,6 +21,7 @@ logger.setLevel(logging.DEBUG)
 # S3 folder location of Real Time inference sample input files to be passed to invoke_endpoint API
 # change this if you use a different S3 folder structure
 S3_FOLDER_PREFIX = 'dataset/rtinf/'
+S3_FOLDER_IQ_IMAGES_PREFIX = 'iq-constellation-images/'
 
 
 def lambda_handler(event, context):
@@ -32,23 +33,26 @@ def lambda_handler(event, context):
         endpointName = os.getenv('endpointName')
         agent_id = os.getenv('agent_id')
         agent_alias_id = os.getenv('agent_alias_id')
+        model_image_id = os.getenv('model_image_id')
     else:
         parser = argparse.ArgumentParser()
         parser.add_argument("-b", "--bucketname", help="This bucket has the input body for real time inference requests")
         parser.add_argument("-e", "--endpointName", help="satcom forecast endpoint created by Sagemaker Autopilot timeseries training")
         parser.add_argument("-a", "--agent_id", help="Bedrock agent id")
         parser.add_argument("-i", "--agent_alias_id", help="Bedrock alias agent id")
+        parser.add_argument("-m", "--model_image_id", help="The model_id to use for Image real time inference")
         args = parser.parse_args()
         bucketName = args.bucketname
         endpointName = args.endpointName
         agent_id = args.agent_id
         agent_alias_id = args.agent_alias_id
+        model_image_id = args.model_image_id
 
-    if None in (bucketName, endpointName, agent_id, agent_alias_id):
-        print("Invalid bucketName and/or endpointName and/or agent_id and/or agent_alias_id")
+    if None in (bucketName, endpointName, agent_id, agent_alias_id, model_image_id):
+        print("Invalid bucketName and/or endpointName and/or agent_id and/or agent_alias_id and/or model_image_id")
         return -1
     else:
-        print("Bucket: ", bucketName, " Endpoint: ", endpointName, "Agent ID: ", agent_id, " Agent Alias ID: ", agent_alias_id)
+        print("Bucket: ", bucketName, " Endpoint: ", endpointName, "Agent ID: ", agent_id, " Agent Alias ID: ", agent_alias_id, " Image model id: ", model_image_id)
 
 
     # bring in params from the bot ie intent and slot values
@@ -105,7 +109,64 @@ def lambda_handler(event, context):
         intent['confirmationState']="Confirmed"
         intent['state']="Fulfilled"
         return close(session_attributes, active_contexts, intent, pred_snip_str)
-    
+
+    # handle the Intent of describing IQ constellation images
+    elif intent_name == 'ImageIntent':
+
+        slots = event['sessionState']['intent']['slots']
+        iqImgFile = try_ex(slots['IqImageFile'])
+        iqImgFile = S3_FOLDER_IQ_IMAGES_PREFIX + iqImgFile
+        print("IqImageFile: ", iqImgFile)
+
+        # get the requested image from the S3 IQ image repository bucket
+        try:
+            input_image = get_image_from_s3(bucketName, iqImgFile)
+        except Exception as e:
+            print(f"Failed to get image: {str(e)}")
+            intent['state']="Failed"
+            return close(session_attributes, active_contexts, intent, "Failed to get IQ file")
+
+        input_text = (
+            "You are an RF Analyst looking at IQ constellation modulation diagrams. "
+            "You need to determine the modulation type. You also need to determine if the constellation "
+            "has noise present, and if so what type of noise or imbalance? "
+            "Finally indicate the typical causes of the noise."
+        )
+        # print(input_text)
+        # input_image = "./phase_noise_plot.png"
+
+        try:
+            bedrock_client = boto3.client(service_name="bedrock-runtime")
+
+            response = generate_conversation(
+                bedrock_client, model_image_id, input_text, input_image)
+
+            output_message = response['output']['message']
+            #print(output_message)
+
+            print(f"Role: {output_message['role']}")
+
+            all_chunks = ""
+            for content in output_message['content']:
+                print(f"Text: {content['text']}")
+                all_chunks = all_chunks + content['text']
+
+            token_usage = response['usage']
+            print(f"Total tokens:  {token_usage['totalTokens']}")
+
+        except ClientError as err:
+            message = err.response['Error']['Message']
+            logger.error("A client error occurred: %s", message)
+            print(f"A client error occurred: {message}")
+
+        else:
+            print(
+                f"Finished generating text with model {model_image_id}.")
+
+        # now return the response to the bot intent
+        intent['state']="Fulfilled"
+        return close(session_attributes, active_contexts, intent, all_chunks)
+
     # if user asks a different question fulfil the answer via Bedrock agent and kbase
     elif intent_name == 'FallbackIntent':
         
@@ -190,7 +251,8 @@ def invoke_endpoint(endpoint_name, payload):
     return response
 
 
-# helper functions...Bedrock runtime agent
+# helper functions...Bedrock runtime agent and client-runtime
+
 # invoke bedrock agent
 def invoke_agent(client, agent_id, agent_alias_id, session_id, prompt):
     """
@@ -227,6 +289,55 @@ def invoke_agent(client, agent_id, agent_alias_id, session_id, prompt):
 
     return completion
 
+# Bedrock client converse - conversation to get IQ images
+def generate_conversation(bedrock_client,
+                          model_id,
+                          input_text,
+                          input_image):
+    """
+    Sends a message to a model.
+    Args:
+        bedrock_client: The Boto3 Bedrock runtime client.
+        model_id (str): The model ID to use.
+        input text : The input message.
+        input_image : The input image.
+
+    Returns:
+        response (JSON): The conversation that the model generated.
+
+    """
+
+    logger.info("Generating message with model %s", model_id)
+
+    # message to send
+    message = {
+        "role": "user",
+        "content": [
+            {
+                "text": input_text
+            },
+            {
+                "image": {
+                    "format": 'jpeg',
+                    "source": {
+                        "bytes": input_image
+                    }
+                }
+            }
+        ]
+    }
+
+    messages = [message]
+
+    # Send the message.
+    response = bedrock_client.converse(
+        modelId=model_id,
+        messages=messages
+    )
+
+    return response
+
+
 
 # helper functions...S3 objects
 # function to get an object from S3 bucket
@@ -239,7 +350,43 @@ def get_object(bucket, key):
         obj = None
     return obj
 
+# get an image file from S3 bucket
+def get_image_from_s3(bucket_name, image_key):
+    """
+    Retrieves an image from S3 and converts it to a base64-encoded string.
 
+    Args:
+        bucket_name (str): The name of the S3 bucket
+        image_key (str): The key (path) of the image in the S3 bucket
+
+    Returns:
+        Object data: image_data
+
+    Raises:
+        ClientError: If there's an error accessing the S3 bucket or object
+        :param bucket_name:
+    """
+    try:
+        # Create S3 client
+        s3_client = boto3.client('s3')
+
+        # Get the image object from S3
+        response = s3_client.get_object(
+            Bucket=bucket_name,
+            Key=image_key
+        )
+
+        # Read the image data
+        image_data = response['Body'].read()
+
+        return image_data
+
+    except ClientError as e:
+        logger.error(f"Error accessing S3: {str(e)}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error: {str(e)}")
+        raise
 
 
 # allow local Python execution testing

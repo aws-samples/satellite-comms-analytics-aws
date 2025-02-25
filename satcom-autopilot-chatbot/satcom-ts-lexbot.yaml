@@ -32,6 +32,12 @@ Parameters:
       Description: Id of the Bedrock agent alias - get from KB Agent stack outputs 
       Default: "V3YC4WZURD"
 
+    BedrockImageModelId:
+      Type: String
+      Description: Id of the Bedrock image model for Lex ImageIntent IQ constellation
+      Default: "us.anthropic.claude-3-5-sonnet-20241022-v2:0"
+
+
 # creation of AWS resources        
 Resources:
 
@@ -62,6 +68,14 @@ Resources:
                   - "bedrock:InvokeAgent"
                 Effect: Allow
                 Resource: '*'
+
+              # allow invoking Bedrock model runtime
+              - Action:
+                  - "bedrock:InvokeModel"
+                  - "bedrock:InvokeModelWithResponseStream"
+                Effect: Allow
+                Resource: '*'
+
               # allow invoking Sagemaker inference endpoint
               - Action:
                   - "sagemaker:InvokeEndpointAsync"
@@ -78,6 +92,7 @@ Resources:
       Description: Lambda function to invoke Sagemaker endpoint and Bedrock LLM agent
       Handler: lambda_function.lambda_handler
       Timeout: 60
+      MemorySize: 512
       Role: !GetAtt ProcessLambdaFunctionExecutionRole.Arn
       Code:
         S3Bucket: !Ref SatComBotS3Bucket
@@ -89,6 +104,7 @@ Resources:
           endpointName: !Ref SatComInferenceEndpoint
           agent_alias_id: !Ref BedrockAgentAliasId
           agent_id: !Ref BedrockAgentId
+          model_image_id: !Ref BedrockImageModelId
       Tags:
       - Key: Name
         Value: !Join [ "-", [ !Ref "AWS::StackName", ProcessLambdaFunction] ]
@@ -229,6 +245,69 @@ Resources:
                               Value: "Which spot beam to forecast? (e.g SpotH3, SpotH7, SpotH12...)"
                       MaxRetries: 3
                       AllowInterrupt: false
+
+            - Name: "ImageIntent"
+              Description: "Detects noise classification from IQ image constellation file"
+              SampleUtterances:
+                - Utterance: "get image noise type"
+                - Utterance: "get noise type"
+                - Utterance: "detect noise from IQ image"
+              InitialResponseSetting:
+                InitialResponse:
+                  MessageGroupsList:
+                    - Message:
+                        PlainTextMessage:
+                          Value: "Ok, let's analyze some IQ images"
+              IntentConfirmationSetting:
+                PromptSpecification:
+                  MessageGroupsList:
+                    - Message:
+                        PlainTextMessage:
+                          Value: "Ok, {IqImageFile} will be analyzed for noise signatures. Does this sound ok? (y/n)"
+                  MaxRetries: 3
+                  AllowInterrupt: false
+                DeclinationResponse:
+                  MessageGroupsList:
+                    - Message:
+                        PlainTextMessage:
+                          Value: "Okay, I will not analyze the image"
+                  AllowInterrupt: false
+              FulfillmentCodeHook:
+                Enabled: true         # lambda logic to fulfil intent
+                PostFulfillmentStatusSpecification:
+                  FailureResponse:
+                    MessageGroupsList:
+                      - Message:
+                          PlainTextMessage:
+                            Value: "Failed to fulfill ImageIntent with LLM"
+              Slots:
+                - Name: "IqImageFile"
+                  SlotTypeName: "AMAZON.FreeFormInput"
+                  ValueElicitationSetting:
+                    SlotConstraint: "Required"
+                    PromptSpecification:
+                      MessageGroupsList:
+                        - Message:
+                            PlainTextMessage:
+                              Value: "Please select an IQ image filename from the S3 bucket for analysis"
+                        - Message:
+                            ImageResponseCard:
+                              Title: "Satcom impairment detection"
+                              Subtitle: "detect interference or noise type from image"
+                              Buttons:
+                                - Text: "Interference"
+                                  Value: "interference-0.jpeg"
+                                - Text: "Phase noise"
+                                  Value: "phase_noise-3.jpeg"
+                                - Text: "IQ Gain imbalance"
+                                  Value: "iq_imbalance-3.jpeg"
+                                - Text: "Normal"
+                                  Value: "normal-3.jpeg"
+                                - Text: "image_2024-02-21 10:30:00"
+                                  Value: "image0.jpeg"
+                      MaxRetries: 3
+                      AllowInterrupt: false
+
             - Name: "FallbackIntent"
               Description: "Default intent when no other intent matches - we use this for Bedrock agent query"
               ParentIntentSignature: "AMAZON.FallbackIntent"
