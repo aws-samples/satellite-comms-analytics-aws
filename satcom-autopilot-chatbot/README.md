@@ -79,8 +79,8 @@ feel free to use it as an additional reference.
 The solution deployment automation script uses 3 parameterized CloudFormation template, OpenSearch_serverless.yaml, satcom-ts-kb-agent.yaml, and satcom-ts-lexbot.yaml to automate provisioning of the following solution resources:
  
  1. OpenSearch Service Serverless collection
- 2. Amazon Bedrock KnowledgeBase
- 3. Amazon Bedrock Agent
+ 2. Amazon Bedrock Agent and KnowledgeBase
+ 3. Amazon Bedrock Runtime
  4. AWS Lambda 
  5. Amazon Lex chatbot intents
  6. IAM Roles
@@ -156,8 +156,8 @@ Use the **trace** to track the agent's path from the user input to the response 
 ## CloudFormation to deploy satcom-ts-lexbot.yaml
 
 The final stack deploys the Amazon Lex and Lambda resources. Lex controls the entire chatbot dialog but reaches out to a 
-Lambda to provide the Fulfillment logic for both the Satellite Capacity forecasting intent `BeamForecast` and the
-Bedrock LLM agent invocation `FallbackIntent`. 
+Lambda to provide the Fulfillment logic for the Satellite Capacity forecasting intent `BeamForecast`, the `ImageIntent` 
+IQ Constellation decoding via Bedrock runtime, and the Bedrock LLM agent invocation `FallbackIntent`. 
 
 The following paramaters should be modified: -
 * SatComBotS3Bucket - the name of the bucket holding the zipped Lambda function
@@ -165,6 +165,7 @@ The following paramaters should be modified: -
 * SatComInferenceEndpoint - the SageMaker Autopilot inference endpoint as indicated in [Pre deployment](#Pre-Deployment)
 * BedrockAgentId - the id of the Bedrock agent deployed by `satcom-ts-kb-agent.yaml`
 * BedrockAgentAliasId - the alias id of the Bedrock agent deployed by `satcom-ts-kb-agent.yaml`
+* BedrockImageModelId - the model id of the Bedrock image model for Lex ImageIntent IQ constellation (defaults to Clause 3.5 Sonnet v2)
 
 1. Deploy the Lambda function to the S3 bucket listed above. There are several ways to automate the deployment of Lambdas: one is to embed the code directly in the yaml file, another is to reference the code as a zip file in an Amazon S3 bucket. We use the latter mechanism. Simply zip up the Python function, `lambda_function.py` in the satcom-ts-bot-intent folder, and upload it to the SatComBotS3Bucket.
 
@@ -179,21 +180,32 @@ Sample input files have been provided at [endpoint-sample-input-data](endpoint-s
 
 **Note** - if you wish to use the generated results from the `inf` mode of [satcom-timeseries-autopilot-gen-fxn](https://github.com/aws-samples/satellite-comms-forecast-aws/tree/main/satcom-timeseries-autopilot-gen-fxn), change the csv filenames in the [Bot Lambda function](satcom-ts-bot-intent/lambda_function.py)
 
-3. Deploy the next stack using the following commands to provision the resources in your AWS account. 
+3. To test the ImageIntent we supply a sample of noise pattern images e.g. `interference-0.jpeg`, `phase_noise-3.jpeg` etc. Copy all of these JPEG files to a new folder `iq-constellation-images` in your S3 bucket.
+
+![Capture-iq-images-s3](https://github.com/user-attachments/assets/d2bbd173-add6-4a81-82fe-4461a6f4453a)
+
+**Note** - if you upload to a different folder structure, change the `S3_FOLDER_IQ_IMAGES_PREFIX` in the [Bot Lambda function](satcom-ts-bot-intent/lambda_function.py)
+
+4. Deploy the next stack using the following commands to provision the resources in your AWS account. Copy all of these csv files to your dataset/rtinf folder in your S3 bucket.
 
 `aws cloudformation create-stack --stack-name <stack-name> --template-body file://satcom-ts-lexbot.yaml --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=<parameter key>,ParameterValue=<parameter value>` ....
 
 **Note** - the chatbot implementation is specific to the Satellite Capacity forecasting use-case. Use it as a reference for your own Lex intents, [slot types](https://docs.aws.amazon.com/lexv2/latest/dg/add-slot-types.html) etc.
 
-4. Open Amazon Lex and click on the generated Bot `SatelliteCapacityChatbot`. Navigate to `Intents` which should look as follows: -
+5. Open Amazon Lex and click on the generated Bot `SatelliteCapacityChatbot`. Navigate to `Intents` which should look as follows: -
 
 ![Capture-Lex-intents](https://github.com/user-attachments/assets/09024a97-8866-4cbc-8516-e302b6fdf494)
 
 The CFN creates all of the Lex resources but does not build the bot. Hence click `Build`. 
 
-5. Click `Test` in the Lex console upper right corner, and test the `BeamForecast` intent
+6. Click `Test` in the Lex console upper right corner, and test the `BeamForecast` intent
 
 ![Capture-Lex-beamforecast](https://github.com/user-attachments/assets/d2b91534-08d3-4959-a887-420c2e55f282)
+
+Now test ImageIntent - type in "get noise type" then select one of the sample noise types to evaluate the LLM responses: -
+
+![Capture-iq-1](https://github.com/user-attachments/assets/09e9bc95-38b9-42d0-86a8-4283e17d2ee0)
+![Capture-iq-2](https://github.com/user-attachments/assets/59f0eee8-d779-4b60-aa7c-8508d8739364)
 
 Finally, test the Bedrock LLM integration with Lex by asking a satellite related question: -
 
