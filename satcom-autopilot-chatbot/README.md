@@ -209,7 +209,7 @@ Now test ImageIntent - type in "get noise type" then select one of the sample no
 ![Capture-iq-1](https://github.com/user-attachments/assets/09e9bc95-38b9-42d0-86a8-4283e17d2ee0)
 ![Capture-iq-2](https://github.com/user-attachments/assets/59f0eee8-d779-4b60-aa7c-8508d8739364)
 
-Finally, test the Bedrock LLM integration with Lex by asking a satellite related question: -
+Finally, test the Bedrock LLM Agent integration with Lex by asking a satellite related question: -
 
 ![Capture-Lex-bedrock](https://github.com/user-attachments/assets/05fa051e-a8e9-4a11-a48e-3a2e7d740f1d)
 
