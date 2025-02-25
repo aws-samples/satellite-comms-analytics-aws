@@ -62,6 +62,8 @@ account](https://signin.aws.amazon.com/signin?redirect_uri=https%3A%2F%2Fportal.
 
 ![Capture-Bedrock-Claude](https://github.com/user-attachments/assets/8fe406ab-2e80-469a-9e41-36496937d4dc)
 
+We require a multi-modal LLM (i.e. image and text) to perform all of the functions in the bot.
+
 Clone the entire repository using the command 
 `git clone https://github.com/aws-samples/satellite-comms-forecast-aws.git`
 
