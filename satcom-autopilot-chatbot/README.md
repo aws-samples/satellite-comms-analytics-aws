@@ -58,7 +58,9 @@ In the following sections, we discuss the key steps to deploy the solution, incl
 An AWS account to deploy the resources is required. Please use the link to sign-up if you do not have an account [AWS
 account](https://signin.aws.amazon.com/signin?redirect_uri=https%3A%2F%2Fportal.aws.amazon.com%2Fbilling%2Fsignup%2Fresume&client_id=signup)
 
-**Note** - navigate to Amazon Bedrock Console and ensure that you have access to the models you are going to use in this solution e.g. Claude 3.5 Sonnet
+**Note** - navigate to Amazon Bedrock Console and ensure that you have access to the models you are going to use in this solution e.g. Claude 3.5 Sonnet v2
+
+![Capture-Bedrock-Claude](https://github.com/user-attachments/assets/8fe406ab-2e80-469a-9e41-36496937d4dc)
 
 Clone the entire repository using the command 
 `git clone https://github.com/aws-samples/satellite-comms-forecast-aws.git`
