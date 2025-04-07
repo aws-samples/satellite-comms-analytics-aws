@@ -29,7 +29,13 @@ Bedrock runtime, knowledgebase and agent, and S3 assets.
 
 Depending on the user’s question the bot goes one of 3 different paths: -
 * capacity forecast - if the user asks “get capacity” or similar utterances, we invoke the BeamForecast Lex intent, which in turn calls a Lambda function to invoke a Sagemaker Autopilot timeseries model endpoint. The model was trained on generated, synthetic satellite data - the Notebook is available at https://github.com/aws-samples/satellite-comms-forecast-aws/tree/main/autopilot-notebook
-* image summarization - if the users asks "get noise type", or similar utterances, we invoke the ImageIntent Lex intent. This uses a multi-mode LLM to describe the content of IQ constellation modulation satcom images. Phase noise, compression noise and interference are all common [examples](https://rahsoft.com/2022/10/16/understanding-constellation-distortions/). 
+
+![Capture_fig1](https://github.com/user-attachments/assets/78297a2e-e75e-46ea-abe2-0acd05b229df)
+  
+* image summarization - if the users asks "get noise type", or similar utterances, we invoke the ImageIntent Lex intent. This uses a multi-mode LLM to describe the content of IQ constellation modulation satcom images. Phase noise, compression noise and interference are all common [examples](https://rahsoft.com/2022/10/16/understanding-constellation-distortions/).
+
+![IQ_plots](https://github.com/user-attachments/assets/9e0a4952-a474-4fcb-baff-00ab63f5a83b)
+ 
 * satellite communication topics - if the user asks a question related to the field of satellite communication, but not directly requesting a specific forecast, the FallbackIntent is invoked. The same Lambda handles this path, but instead invokes a Claude3 Bedrock agent associated with a Bedrock knowledge-base consisting of AWS Aerospace and Satellite blogs. 
 
 As illustrated in the architecture diagram, we use the following AWS services:
