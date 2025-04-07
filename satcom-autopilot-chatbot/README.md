@@ -28,7 +28,7 @@ This project provides the infrastructure, via a series of Cloudformation templat
 Bedrock runtime, knowledgebase and agent, and S3 assets. 
 
 Depending on the user’s question the bot goes one of 3 different paths: -
-* capacity forecast - if the user asks “get capacity” or similar utterances, we invoke the BeamForecast Lex intent, which in turn calls a Lambda function to invoke a Sagemaker Autopilot timeseries model endpoint. The model was trained on generated, synthetic satellite data - the Notebook is available at https://github.com/aws-samples/satellite-comms-forecast-aws/tree/main/autopilot-notebook
+* capacity forecast - if the user asks “get capacity” or similar utterances, we invoke the BeamForecast Lex intent, which in turn calls a Lambda function to invoke a Sagemaker Autopilot timeseries model endpoint on [spot beams](https://en.wikipedia.org/wiki/Spot_beam). The model was trained on generated, synthetic satellite data - the Notebook is available [here](https://github.com/aws-samples/satellite-comms-forecast-aws/tree/main/autopilot-notebook)
 
 ![Capture_fig1](https://github.com/user-attachments/assets/78297a2e-e75e-46ea-abe2-0acd05b229df)
   
