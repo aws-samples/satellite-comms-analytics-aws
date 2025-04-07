@@ -19,7 +19,7 @@ forecasted capacity needs, accuracy metrics, and which attributes most impact th
 ## Architecture
 The architecture of the system is as follows: -
 
-![satcapacitybot-arch drawio](https://github.com/user-attachments/assets/273e9557-edf1-4414-8bc3-fe864691d077)
+![satcapacitybot-arch drawio](https://github.com/user-attachments/assets/e5fd45d2-c7bd-430f-8703-8740c252cc23)
 
 Users interact with the application via either Amazon Lex directly or a Messaging platform such as Facebook, Slack or Twilio. This is achieved
 via a [Lex channel integration](https://docs.aws.amazon.com/lexv2/latest/dg/deploying-messaging-platform.html).
