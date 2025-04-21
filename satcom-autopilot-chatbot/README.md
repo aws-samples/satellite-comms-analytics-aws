@@ -64,7 +64,8 @@ In the following sections, we discuss the key steps to deploy the solution, incl
 An AWS account to deploy the resources is required. Please use the link to sign-up if you do not have an account [AWS
 account](https://signin.aws.amazon.com/signin?redirect_uri=https%3A%2F%2Fportal.aws.amazon.com%2Fbilling%2Fsignup%2Fresume&client_id=signup)
 
-**Note** - navigate to Amazon Bedrock Console and ensure that you have access to the models you are going to use in this solution e.g. Claude 3.5 Sonnet v2
+**Note** - navigate to Amazon Bedrock Console and ensure that you have access to the models you are going to use in 
+this solution e.g. Claude 3.5 Sonnet v2 or Claude 3.7 Sonnet v1
 
 ![Capture-Bedrock-Claude](https://github.com/user-attachments/assets/8fe406ab-2e80-469a-9e41-36496937d4dc)
 
@@ -173,7 +174,7 @@ The following paramaters should be modified: -
 * SatComInferenceEndpoint - the SageMaker Autopilot inference endpoint as indicated in [Pre deployment](#Pre-Deployment)
 * BedrockAgentId - the id of the Bedrock agent deployed by `satcom-ts-kb-agent.yaml`
 * BedrockAgentAliasId - the alias id of the Bedrock agent deployed by `satcom-ts-kb-agent.yaml`
-* BedrockImageModelId - the model id of the Bedrock image model for Lex ImageIntent IQ constellation (defaults to Clause 3.5 Sonnet v2)
+* BedrockImageModelId - the model id of the Bedrock image model for Lex ImageIntent IQ constellation (defaults to Clause 3.7 Sonnet v1)
 
 1. Deploy the Lambda function to the S3 bucket listed above. There are several ways to automate the deployment of Lambdas: one is to embed the code directly in the yaml file, another is to reference the code as a zip file in an Amazon S3 bucket. We use the latter mechanism. Simply zip up the Python function, `lambda_function.py` in the satcom-ts-bot-intent folder, and upload it to the SatComBotS3Bucket.
 
