@@ -130,7 +130,8 @@ def lambda_handler(event, context):
             "You are an RF Analyst looking at IQ constellation modulation diagrams. "
             "You need to determine the modulation type. You also need to determine if the constellation "
             "has noise present, and if so what type of noise or imbalance? "
-            "Finally indicate the typical causes of the noise."
+            "Indicate the typical causes of the noise."
+            "Do not respond in markup, respond in plain text"
         )
         # print(input_text)
         # input_image = "./phase_noise_plot.png"
