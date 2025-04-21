@@ -174,7 +174,7 @@ The following paramaters should be modified: -
 * SatComInferenceEndpoint - the SageMaker Autopilot inference endpoint as indicated in [Pre deployment](#Pre-Deployment)
 * BedrockAgentId - the id of the Bedrock agent deployed by `satcom-ts-kb-agent.yaml`
 * BedrockAgentAliasId - the alias id of the Bedrock agent deployed by `satcom-ts-kb-agent.yaml`
-* BedrockImageModelId - the model id of the Bedrock image model for Lex ImageIntent IQ constellation (defaults to Clause 3.7 Sonnet v1)
+* BedrockImageModelId - the model id of the Bedrock image model for Lex ImageIntent IQ constellation (defaults to Claude 3.7 Sonnet v1)
 
 1. Deploy the Lambda function to the S3 bucket listed above. There are several ways to automate the deployment of Lambdas: one is to embed the code directly in the yaml file, another is to reference the code as a zip file in an Amazon S3 bucket. We use the latter mechanism. Simply zip up the Python function, `lambda_function.py` in the satcom-ts-bot-intent folder, and upload it to the SatComBotS3Bucket.
 
