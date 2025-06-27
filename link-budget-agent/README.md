@@ -1,6 +1,6 @@
 # Link Budget Calculator Agent
 
-This project provides an Amazon Bedrock Agent that calculates satellite link budgets using a containerized AWS Lambda function. The agent uses natural language processing to collect parameters from users and invoke the link budget calculation through an action group.
+This project provides an Amazon Bedrock Agent that calculates satellite [link budgets](https://en.wikipedia.org/wiki/Link_budget) using a containerized AWS Lambda function. The agent uses natural language processing to collect parameters from users and invoke the link budget calculation through an action group.
 
 ## Architecture Overview
 
