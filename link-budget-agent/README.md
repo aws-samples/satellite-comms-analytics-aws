@@ -154,6 +154,9 @@ The agent includes one action group:
    Agent: "I'll help you calculate that. I need the coaxial cable length and receive dish gain..."
    ```
 
+![Capture-agent](https://github.com/user-attachments/assets/5bd7c509-347f-48b1-8d2e-d824f2141853)
+
+
 ## File Structure
 
 ```
