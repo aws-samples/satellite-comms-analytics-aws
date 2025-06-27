@@ -1,4 +1,4 @@
-## Predicting satellite communications capacity with Amazon Forecast
+## Predicting satellite communications capacity with Amazon SageMaker
 
 ### Description
 This repository contains sample code to demonstrate Satellite Communications Forecasting use-cases. The associated blog 
@@ -19,12 +19,32 @@ Multiple factors such as weather and the geographical location of the vessel in 
 usage of satellite capacity bandwidth. 
 
 Satellite Operators would like advance notice of capacity needs to plan out allocation, enabling the most efficient distribution 
-of satellite capacity. This is where Amazon Forecast provides great benefit. Forecast can predict future capacity needs per beam leveraging 
+of satellite capacity. This is where [Amazon SageMaker Autopilot Timeseries](https://docs.aws.amazon.com/sagemaker/latest/dg/autopilot-create-experiment-timeseries-forecasting.html) provides 
+great benefit. The model can predict future capacity needs per beam leveraging 
 historical bandwidth usage data and related time series such as weather metrics.
 
 An accurate forecasting strategy can lead to lower costs (higher bandwidth utilization), and higher passenger 
 satisfaction (e.g. successful capacity handling of demand surges). 
 
+### Repository Structure
+
+```
+satellite-comms-forecast-aws/
+├── autopilot-notebook/             # Recommended start point for capacity forecasting
+├── satcom-timeseries-autopilot-gen-fxn/     # Lambda fxn to generate training data for the model
+├── noaa-ndbc-weather-fxn/           # Lambda fxn to parse NOAA Buoy files for air-pressure
+├── satcom-timeseries-datagen-cfn.yaml       # generate Lambda for Sage Autopliot timeseries data-gen
+
+├── forecast-notebook/              # (legacy) Previous notebook based on Amazon Forecast
+├── satcom-forecast-datagen-fxn/    # Lambda fxn to generate training data for the model
+├── satcom-forecast-datagen-cfn.yaml         # generate Lambda for Forecast timeseries data-gen
+
+├── satcom-autopilot-chatbot/       # GenAI-based chatbot handling sat capacity requests
+
+├── link-budget-agent/              # GenAI Agent to calculate satellite link budget
+
+└── README.md                       # This file
+```
 
 ### Satellite bandwidth and weather data generation
 
@@ -146,7 +166,7 @@ The benefits of SageMaker Autopilot Timeseries over Amazon Forecast are: -
 * select which model to use (best candidate or otherwise)
 * lower cost (particularly with Real Time Inference) 
 
-It is therefore recommended to use SageMaker Autopilot Timeseries over Amazon Forecast
+It is therefore strongly recommended to use SageMaker Autopilot Timeseries over Amazon Forecast
 for new prediction use-cases.
 
 A Jupyter notebook demonstrating how to perform satellite capacity forecasting
