@@ -1,0 +1,74 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for Link Budget Lambda function with Bedrock integration'
+
+Parameters:
+  LambdaFunctionName:
+    Type: String
+    Default: 'link-budget-calculator'
+    Description: 'Name for the Lambda function'
+  
+  ImageUri:
+    Type: String
+    Description: 'ECR image URI for the Lambda function container image'
+
+Resources:
+  # IAM Role for Lambda Function
+  LinkBudgetLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${LambdaFunctionName}-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # Lambda Function
+  LinkBudgetLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref LambdaFunctionName
+      PackageType: Image
+      Role: !GetAtt LinkBudgetLambdaRole.Arn
+      Code:
+        ImageUri: !Ref ImageUri
+      Timeout: 60
+      MemorySize: 512
+      Description: 'Lambda function for calculating satellite link budgets using the link-budget Python package'
+      Environment:
+        Variables:
+          LOG_LEVEL: INFO
+
+  # Resource-based policy to allow Bedrock to invoke the Lambda function
+  BedrockInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LinkBudgetLambdaFunction
+      Action: lambda:InvokeFunction
+      Principal: bedrock.amazonaws.com
+      SourceAccount: !Ref AWS::AccountId
+
+
+Outputs:
+  LambdaFunctionArn:
+    Description: 'ARN of the Link Budget Lambda function'
+    Value: !GetAtt LinkBudgetLambdaFunction.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-LambdaFunctionArn'
+  
+  LambdaFunctionName:
+    Description: 'Name of the Link Budget Lambda function'
+    Value: !Ref LinkBudgetLambdaFunction
+    Export:
+      Name: !Sub '${AWS::StackName}-LambdaFunctionName'
+  
+  LambdaRoleArn:
+    Description: 'ARN of the Lambda execution role'
+    Value: !GetAtt LinkBudgetLambdaRole.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-LambdaRoleArn'

@@ -34,7 +34,7 @@ Parameters:
 
     BedrockImageModelId:
       Type: String
-      Description: Id of the Bedrock image model for Lex ImageIntent IQ constellation
+      Description: Id of the Bedrock multi modal model for Lex ImageIntent IQ constellation
       Default: "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
 
 
@@ -89,7 +89,7 @@ Resources:
   ProcessLambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
-      Description: Lambda function to invoke Sagemaker endpoint and Bedrock LLM agent
+      Description: Lambda function to invoke intents for Sagemaker endpoint and Bedrock LLM agent
       Handler: lambda_function.lambda_handler
       Timeout: 60
       MemorySize: 512
