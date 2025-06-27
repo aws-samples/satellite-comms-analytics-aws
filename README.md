@@ -30,10 +30,11 @@ satisfaction (e.g. successful capacity handling of demand surges).
 
 ```
 satellite-comms-forecast-aws/
-├── autopilot-notebook/             # Recommended start point for capacity forecasting
+├── autopilot-notebook/              # Recommended start point for capacity forecasting
 ├── satcom-timeseries-autopilot-gen-fxn/     # Lambda fxn to generate training data for the model
-├── noaa-ndbc-weather-fxn/           # Lambda fxn to parse NOAA Buoy files for air-pressure
 ├── satcom-timeseries-datagen-cfn.yaml       # generate Lambda for Sage Autopliot timeseries data-gen
+├── noaa-ndbc-weather-fxn/           # Lambda fxn to parse NOAA Buoy files for air-pressure
+├── noaa-ndbc-weather-cfn.yaml       # generate Lambda to parse NOAA Buoy files for air-pressure
 
 ├── forecast-notebook/              # (legacy) Previous notebook based on Amazon Forecast
 ├── satcom-forecast-datagen-fxn/    # Lambda fxn to generate training data for the model
@@ -43,7 +44,7 @@ satellite-comms-forecast-aws/
 
 ├── link-budget-agent/              # GenAI Agent to calculate satellite link budget
 
-└── README.md                       # This file
+└── README.md                       # This README file
 ```
 
 ### Satellite bandwidth and weather data generation
