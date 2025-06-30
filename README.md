@@ -9,7 +9,7 @@ series predictor model for each satellite beam in the ship(s) path, accounting f
 conditions in a given location. It then renders results in [Amazon QuickSight](https://aws.amazon.com/quicksight/) BI tooling, displaying
 forecasted capacity needs, accuracy metrics, and which attributes most impact the model.
 
-This [repository](#Repository Structure) also includes a [chatbot](https://github.com/aws-samples/satellite-comms-forecast-aws/tree/main/satcom-autopilot-chatbot) to retrieve satellite capacity forecasts which also incorporates an RF interference multi-modal Gen AI detection solution.
+This [repository](#Repository-Structure) also includes a [chatbot](https://github.com/aws-samples/satellite-comms-forecast-aws/tree/main/satcom-autopilot-chatbot) to retrieve satellite capacity forecasts which also incorporates an RF interference multi-modal Gen AI detection solution.
 In addition a [link-budget calculator](https://github.com/aws-samples/satellite-comms-forecast-aws/tree/main/link-budget-agent) using agentic Gen AI is available as a reference for SatCom customers to start their own Gen AI workloads.
 
 > [!IMPORTANT]
