@@ -10,6 +10,15 @@ The solution consists of:
 - **Action Group**: Connects the agent to the Lambda function with defined parameters
 - **CloudFormation Templates**: Infrastructure as Code for automated deployment
 
+## Getting Started
+
+If you have not already done so, clone the `satellite-comms-forecast-aws` repository
+
+   ```bash
+   # clone the satellite communications capacity forecasting git repository
+   git clone https://github.com/aws-samples/satellite-comms-forecast-aws.git
+   ```
+
 ## Lambda Function
 
 ### Overview
@@ -20,7 +29,16 @@ The Lambda function is built as a container image and uses the open-source [link
 > [!NOTE]
 > The link budget python package has dependencies which may not be satisfied with
 > the most recent Python versions. This Lambda function was tested with Python 3.10
-> in a [virtual environment](https://www.freecodecamp.org/news/how-to-setup-virtual-environments-in-python/)
+
+> [!TIP]
+> Setting up a [virtual environment](https://www.freecodecamp.org/news/how-to-setup-virtual-environments-in-python/) is a good idea since your project becomes its 
+> own self contained application, independent of the system-installed Python and its modules
+> e.g for python 3.10: -
+>
+> `python3.10 -m venv myenv`
+> 
+> `source myenv/bin/activate`
+
 
 1. **Prerequisites**:
    - Docker installed and running
@@ -32,14 +50,27 @@ The Lambda function is built as a container image and uses the open-source [link
 
    A docker container image is used for the lambda function instead of a [.zip file archive](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html) because the size of the dependencies for the link-budget package exceeds 250Mb.
 
+   Use one of the build-and-deploy options below as per your AWS region, hardware platform etc.
+
    ```bash
    # Make the script executable
    chmod +x build-and-deploy.sh
    
-   # Build and deploy the container
+   # Build and deploy the container (default amd64 platform)
    ./build-and-deploy.sh link-budget-lambda us-east-1 123456789012
+   
+   # Build and deploy with explicit platform specification
+   ./build-and-deploy.sh link-budget-lambda us-east-1 123456789012 amd64
+   
+   # Build and deploy for ARM64 platform
+   ./build-and-deploy.sh link-budget-lambda us-east-1 123456789012 arm64
    ```
-   Replace parameters as appropriate (i) lambda function name (ii) AWS region, (iii) your AWS account id.
+   
+   **Parameters**:
+   - `image-name`: Lambda function name (e.g., link-budget-lambda)
+   - `region`: AWS region (e.g., us-east-1)
+   - `account-id`: Your AWS account ID (12 digits)
+   - `platform`: Optional platform architecture - `amd64` (default) or `arm64`
 
 
 3. **Deploy Lambda with CloudFormation**:
@@ -51,10 +82,18 @@ The Lambda function is built as a container image and uses the open-source [link
      --capabilities CAPABILITY_NAMED_IAM \
      --region us-east-1
    ```
+    Replace region and account Id values in the ImageUri parameter.
+
+4. **Customization Options (optional)**:
+```bash
+# Custom Lambda function name
+--parameters ParameterKey=LambdaFunctionName,ParameterValue=lb-lambda-fxn
+```
+
 
 ### Lambda Function Features
 - **Container-based deployment** for better dependency management
-- **AMD64 platform compatibility** with AWS Lambda
+- **Multi-platform support** - AMD64 (default) and ARM64 architectures
 - **Bedrock action group** integration support
 - **Comprehensive parameter handling** with sensible defaults
 - **CloudWatch logging** with configurable log levels
@@ -69,6 +108,7 @@ The Bedrock Agent provides a conversational interface for satellite link budget 
 - **Parameter Collection**: Intelligently asks for required parameters
 - **Calculation Invocation**: Calls the Lambda function through action groups
 - **Result Interpretation**: Presents calculation results in a user-friendly format
+- **Flexible Model Configuration**: Supports both on-demand models and ApplicationInferenceProfiles
 
 ### Action Group Configuration
 The agent includes one action group:
@@ -86,7 +126,7 @@ The agent includes one action group:
 | coax_length      | number | ✓ | Coaxial cable length in feet | -       |
 | rx_dish_gain     | number | ✓ | Receive dish gain in dBi     | -       |
 | atmospheric_loss | number | | Atmospheric loss in dB       | 0.5     |
-| rx_noise_fig     | number | | rx_noise_fig                 | 8.0     |
+| rx_noise_fig     | number | | Receiver’s noise figure in dB  | 8.0     |
 | eirp             | number | | antenna EIRP in dBW          | 50      |
 
 > [!TIP]
@@ -103,6 +143,8 @@ The agent includes one action group:
    - Ensure you have access to the FM model of choice
 
 2. **Deploy with CloudFormation**:
+   
+   **Basic deployment (on-demand model)**:
    ```bash
    aws cloudformation create-stack \
      --stack-name link-budget-bedrock-agent-stack \
@@ -111,11 +153,25 @@ The agent includes one action group:
      --capabilities CAPABILITY_NAMED_IAM \
      --region us-east-1
    ```
-
-3. **Customization Options**:
+   
+   **Deploy with ApplicationInferenceProfile**:
    ```bash
-   # Use different model
-   --parameters ParameterKey=ModelId,ParameterValue=anthropic.claude-3-haiku-20240307-v1:0
+   aws cloudformation create-stack \
+     --stack-name link-budget-bedrock-agent-stack \
+     --template-body file://bedrock-agent-template.yaml \
+     --parameters \
+       ParameterKey=LambdaFunctionArn,ParameterValue=arn:aws:lambda:region:account:function:link-budget-calculator \
+       ParameterKey=UseInferenceProfile,ParameterValue=true \
+     --capabilities CAPABILITY_NAMED_IAM \
+     --region us-east-1
+   ```
+
+3. **Customization Options (optional)**:
+   ```bash
+   # Use different model with ApplicationInferenceProfile
+   --parameters \
+     ParameterKey=ModelId,ParameterValue=anthropic.claude-3-7-sonnet-20250219-v1:0 \
+     ParameterKey=UseInferenceProfile,ParameterValue=true
    
    # Custom agent name
    --parameters ParameterKey=AgentName,ParameterValue=MyLinkBudgetAgent
@@ -124,12 +180,41 @@ The agent includes one action group:
 ### Template Parameters
 - **AgentName**: Name for the Bedrock Agent (default: LinkBudgetAgent)
 - **ModelId**: Foundation model ID (default: Claude 3.5 Sonnet v2)
+- **UseInferenceProfile**: Whether to use ApplicationInferenceProfile (default: false)
 - **LambdaFunctionArn**: ARN of the Lambda function
 - **AgentInstruction**: Custom instructions for the agent behavior
+
+### ApplicationInferenceProfile vs On-Demand Models
+
+The template supports two model configuration options:
+
+#### On-Demand Models (default)
+- Direct access to foundation models
+- Pay-per-use pricing
+- Suitable for development and low-volume usage
+- No additional setup required
+
+#### ApplicationInferenceProfile
+- Creates a dedicated inference profile for your application
+- Enhanced cost management and tracking
+- Better performance isolation
+- Improved monitoring capabilities
+- Automatically configured IAM permissions for `bedrock:InvokeModel`
+
+**When to use ApplicationInferenceProfile:**
+- Production deployments
+- Applications requiring dedicated capacity
+- Enhanced cost tracking and management
+- Better performance predictability
 
 ## Usage Examples
 
 ### Interacting with the Agent
+
+   Open the AWS Console and go to Amazon Bedrock. Then click `Agents` on the left hand navigation bar.
+   You should see and agent named "LinkBudgetAgent" (or custom name if changed via parameters above).
+   
+   Click on the newly created agent and type one of the following user entries in the `Test` pane on the right-side.
 
 1. **Basic Calculation**:
    ```
@@ -176,8 +261,12 @@ link-budget/
 - [AWS Lambda Container Images](https://docs.aws.amazon.com/lambda/latest/dg/images-create.html)
 - [Amazon Bedrock Agents](https://docs.aws.amazon.com/bedrock/latest/userguide/agents.html)
 - [Bedrock Action Groups](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-action-create.html)
+- [Amazon Bedrock Inference Profiles](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles.html)
+- [Cross-Region Inference Profiles](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference.html)
+- [Application Inference Profiles](https://docs.aws.amazon.com/bedrock/latest/userguide/application-inference-profiles.html)
 - [CloudFormation Lambda Reference](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-lambda-function.html)
 - [CloudFormation Bedrock Agent Reference](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-bedrock-agent.html)
+- [CloudFormation Application Inference Profile Reference](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-bedrock-applicationinferenceprofile.html)
 
 ### GitHub Repositories
 - [Link Budget Python Package](https://github.com/igorauad/link-budget) - Core calculation library
@@ -189,8 +278,8 @@ link-budget/
 ### Common Issues
 
 1. **Container Build Failures**:
-   - Ensure Docker is running
-   - Check platform compatibility (use `--platform linux/amd64`)
+   - Ensure Docker is running (`docker info`)
+   - Check platform compatibility (specify platform parameter: `amd64` or `arm64`)
    - Verify all dependencies in requirements.txt
    - Use a version of python that is compatible with the link budget python package (e.g. 3.10) 
 
@@ -202,7 +291,9 @@ link-budget/
 3. **Bedrock Agent Issues**:
    - Ensure Lambda function ARN is correct
    - Check IAM role permissions
-   - Verify model availability in your region
+   - Verify model availability in your region, and model access enabled
+   - An error indicating no on-demand Inference option - add the UseInferenceProfile parameter 
+   - When using ApplicationInferenceProfile, ensure the source inference profile (`us.{ModelId}`) exists in your region
 
 4. **Action Group Invocation Failures**:
    - Check Lambda resource-based policy for Bedrock

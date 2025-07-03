@@ -17,6 +17,12 @@ Parameters:
     Default: 'anthropic.claude-3-5-sonnet-20241022-v2:0'
     Description: 'Foundation model ID for the Bedrock Agent'
 
+  UseInferenceProfile:
+    Type: String
+    Default: 'false'
+    AllowedValues: ['true', 'false']
+    Description: 'Whether to use inference profile (true) or on-demand model (false)'
+
   LambdaFunctionArn:
     Type: String
     Description: 'ARN of the Link Budget Calculator Lambda function'
@@ -26,7 +32,20 @@ Parameters:
     Default: 'You are a satellite communications agent analyzing satellite link budgets. Your job is to invoke the lambda function and use the associated knowledgebase to determine if the link margin is acceptable, and provide recommendations to improve it.'
     Description: 'Instructions for the Bedrock Agent'
 
+Conditions:
+  UseInferenceProfileCondition: !Equals [!Ref UseInferenceProfile, 'true']
+
 Resources:
+  # Application Inference Profile (created only when UseInferenceProfile is true)
+  LinkBudgetInferenceProfile:
+    Type: AWS::Bedrock::ApplicationInferenceProfile
+    Condition: UseInferenceProfileCondition
+    Properties:
+      InferenceProfileName: !Sub '${AgentName}-inference-profile'
+      Description: !Sub 'Application inference profile for ${AgentName}'
+      ModelSource:
+        CopyFrom: !Sub 'arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:inference-profile/us.${ModelId}'
+
   # IAM Role for Bedrock Agent with AWS Managed Policies
   BedrockAgentRole:
     Type: AWS::IAM::Role
@@ -40,7 +59,7 @@ Resources:
               Service: bedrock.amazonaws.com
             Action: sts:AssumeRole
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AmazonBedrockReadOnly
+        - arn:aws:iam::aws:policy/AmazonBedrockLimitedAccess
       Policies:
         - PolicyName: LambdaInvokePolicy
           PolicyDocument:
@@ -57,7 +76,10 @@ Resources:
     Properties:
       AgentName: !Ref AgentName
       Description: !Ref AgentDescription
-      FoundationModel: !Ref ModelId
+      FoundationModel: !If 
+        - UseInferenceProfileCondition
+        - !GetAtt LinkBudgetInferenceProfile.InferenceProfileArn
+        - !Ref ModelId
       Instruction: !Ref AgentInstruction
       AgentResourceRoleArn: !GetAtt BedrockAgentRole.Arn
       IdleSessionTTLInSeconds: 1800
@@ -124,3 +146,26 @@ Outputs:
     Value: !GetAtt BedrockAgentRole.Arn
     Export:
       Name: !Sub '${AWS::StackName}-BedrockAgentRoleArn'
+  
+  ApplicationInferenceProfileId:
+    Condition: UseInferenceProfileCondition
+    Description: 'ID of the Application Inference Profile'
+    Value: !Ref LinkBudgetInferenceProfile
+    Export:
+      Name: !Sub '${AWS::StackName}-ApplicationInferenceProfileId'
+  
+  ApplicationInferenceProfileArn:
+    Condition: UseInferenceProfileCondition
+    Description: 'ARN of the Application Inference Profile'
+    Value: !GetAtt LinkBudgetInferenceProfile.InferenceProfileArn
+    Export:
+      Name: !Sub '${AWS::StackName}-ApplicationInferenceProfileArn'
+  
+  ModelConfiguration:
+    Description: 'Model configuration being used (on-demand or application inference profile)'
+    Value: !If
+      - UseInferenceProfileCondition
+      - !Sub 'Application Inference Profile: ${LinkBudgetInferenceProfile} (based on arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:inference-profile/us.${ModelId})'
+      - !Sub 'On-Demand Model: ${ModelId}'
+    Export:
+      Name: !Sub '${AWS::StackName}-ModelConfiguration'
