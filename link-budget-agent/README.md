@@ -154,6 +154,9 @@ The agent includes one action group:
      --region us-east-1
    ```
    
+   Alternatively, some foundational models are only available via [inference profiles](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles.html). To accomodate this, 
+   we have a conditional parameter `UseInferenceProfile`
+
    **Deploy with ApplicationInferenceProfile**:
    ```bash
    aws cloudformation create-stack \
@@ -212,7 +215,7 @@ The template supports two model configuration options:
 ### Interacting with the Agent
 
    Open the AWS Console and go to Amazon Bedrock. Then click `Agents` on the left hand navigation bar.
-   You should see and agent named "LinkBudgetAgent" (or custom name if changed via parameters above).
+   You should see an agent named "LinkBudgetAgent" (or custom name if changed via parameters above).
    
    Click on the newly created agent and type one of the following user entries in the `Test` pane on the right-side.
 
@@ -226,11 +229,6 @@ The template supports two model configuration options:
    ```
    User: "get link margin"
    Agent: [Asks for required parameters - dish gain and coax length]
-   ```
-
-   ```
-   User: "I need a link budget for Ku-band at 12.5 GHz with a 1.2m dish"
-   Agent: [Asks for required parameters and uses provided frequency and dish size]
    ```
 
 3. **Parameter Clarification**:
