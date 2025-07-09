@@ -12,11 +12,14 @@ The solution consists of:
 
 ## Getting Started
 
-If you have not already done so, clone the `satellite-comms-forecast-aws` repository
+If you have not already done so, clone the `satellite-comms-forecast-aws` repository and change into the link-budget-agent directory:
 
    ```bash
    # clone the satellite communications capacity forecasting git repository
    git clone https://github.com/aws-samples/satellite-comms-forecast-aws.git
+   
+   # change directory to the link-budget-agent folder
+   cd satellite-comms-forecast-aws/link-budget-agent
    ```
 
 ## Lambda Function
@@ -59,18 +62,13 @@ The Lambda function is built as a container image and uses the open-source [link
    # Build and deploy the container (default amd64 platform)
    ./build-and-deploy.sh link-budget-lambda us-east-1 123456789012
    
-   # Build and deploy with explicit platform specification
-   ./build-and-deploy.sh link-budget-lambda us-east-1 123456789012 amd64
-   
-   # Build and deploy for ARM64 platform
-   ./build-and-deploy.sh link-budget-lambda us-east-1 123456789012 arm64
    ```
    
    **Parameters**:
    - `image-name`: Lambda function name (e.g., link-budget-lambda)
    - `region`: AWS region (e.g., us-east-1)
    - `account-id`: Your AWS account ID (12 digits)
-   - `platform`: Optional platform architecture - `amd64` (default) or `arm64`
+   - `platform`: (Optional) platform architecture - `amd64` (default) or `arm64`
 
 
 3. **Deploy Lambda with CloudFormation**:
@@ -93,7 +91,6 @@ The Lambda function is built as a container image and uses the open-source [link
 
 ### Lambda Function Features
 - **Container-based deployment** for better dependency management
-- **Multi-platform support** - AMD64 (default) and ARM64 architectures
 - **Bedrock action group** integration support
 - **Comprehensive parameter handling** with sensible defaults
 - **CloudWatch logging** with configurable log levels
@@ -277,7 +274,6 @@ link-budget/
 
 1. **Container Build Failures**:
    - Ensure Docker is running (`docker info`)
-   - Check platform compatibility (specify platform parameter: `amd64` or `arm64`)
    - Verify all dependencies in requirements.txt
    - Use a version of python that is compatible with the link budget python package (e.g. 3.10) 
 
