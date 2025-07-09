@@ -2,6 +2,10 @@
 
 This project provides an Amazon Bedrock Agent that calculates satellite [link budgets](https://en.wikipedia.org/wiki/Link_budget) using a containerized AWS Lambda function. The agent uses natural language processing to collect parameters from users and invoke the link budget calculation through an action group.
 
+Link budgets are critical in satellite communication system. It factors all of the power gains (e.g. amplifiers) and losses (e.g. rain fade, interference) that a radio frequency (RF) signal experiences within a satcom system. 
+
+*Received Power (dBm) = transmitted power (dBm) + gains (dB) – losses (dB)*
+
 ![link-budget drawio](https://github.com/user-attachments/assets/b205100e-7dec-4bc8-8e35-54fc4e971f79)
 
 ## Architecture Overview
