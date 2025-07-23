@@ -119,8 +119,8 @@ The agent includes one action group:
 **LinkBudgetCalculator Action Group**:
 - **Function**: `calculateLinkBudget`
 - **Required Parameters**:
-  - `coax_length` (number): Coaxial cable length in feet
-  - `rx_dish_gain` (number): Receive dish gain in dBi
+  - `coax_length` (number): Coaxial cable length in feet (typically 10-100 feet)
+  - `rx_dish_gain` (number): Receive dish gain in dBi (typically 30-60 dBi)
 - **Optional Parameters**: All other link budget parameters for enhanced accuracy
 
 ### Supported Parameters
@@ -161,7 +161,7 @@ The agent includes one action group:
 
    (optional) You can use on-demand models (if one exists for your Model of choice) instead of application inference profiles by setting the `UseInferenceProfile` parameter to false:
 
-   **Deploy with on-demand model**:
+   **Deploy with on-demand model (optional)**:
    ```bash
    aws cloudformation create-stack \
      --stack-name link-budget-bedrock-agent-stack \
