@@ -14,12 +14,12 @@ Parameters:
   
   ModelId:
     Type: String
-    Default: 'anthropic.claude-3-5-sonnet-20241022-v2:0'
+    Default: 'anthropic.claude-3-7-sonnet-20250219-v1:0'
     Description: 'Foundation model ID for the Bedrock Agent'
 
   UseInferenceProfile:
     Type: String
-    Default: 'false'
+    Default: 'true'
     AllowedValues: ['true', 'false']
     Description: 'Whether to use inference profile (true) or on-demand model (false)'
 

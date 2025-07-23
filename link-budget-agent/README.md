@@ -12,7 +12,7 @@ Link budgets are critical in satellite communication system. It factors all of t
 
 The solution consists of:
 - **AWS Lambda Function**: Containerized function using the [link-budget](https://github.com/igorauad/link-budget) Python package
-- **Amazon Bedrock Agent**: AI agent with Claude 3.5 Sonnet v2 that handles user interactions
+- **Amazon Bedrock Agent**: AI agent with Claude 3.7 Sonnet v1 that handles user interactions
 - **Action Group**: Connects the agent to the Lambda function with defined parameters
 - **CloudFormation Templates**: Infrastructure as Code for automated deployment
 
@@ -104,7 +104,7 @@ The Lambda function is built as a container image and uses the open-source [link
 ## Amazon Bedrock Agent
 
 ### Overview
-The Bedrock Agent provides a conversational interface for satellite link budget calculations. It uses Claude 3.5 Sonnet v2 (configurable) to understand user requests and collect the necessary parameters.
+The Bedrock Agent provides a conversational interface for satellite link budget calculations. It uses Claude 3.7 Sonnet v1 (configurable) to understand user requests and collect the necessary parameters.
 
 ### Agent Capabilities
 - **Natural Language Processing**: Understands user requests in plain English
@@ -146,8 +146,10 @@ The agent includes one action group:
    - Ensure you have access to the FM model of choice
 
 2. **Deploy with CloudFormation**:
-   
-   **Basic deployment (on-demand model)**:
+
+   Update the region and account id in the Lambda function parameter value, or copy/paste it from the Outputs of the previous Lambda CloudFormation stack deployment. Also update the region as necessary.
+
+   **Basic deployment (with ApplicationInferenceProfile - default)**:
    ```bash
    aws cloudformation create-stack \
      --stack-name link-budget-bedrock-agent-stack \
@@ -156,28 +158,27 @@ The agent includes one action group:
      --capabilities CAPABILITY_NAMED_IAM \
      --region us-east-1
    ```
-   
-   Alternatively, some foundational models are only available via [inference profiles](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles.html). To accomodate this, 
-   we have a conditional parameter `UseInferenceProfile`
 
-   **Deploy with ApplicationInferenceProfile**:
+   (optional) You can use on-demand models (if one exists for your Model of choice) instead of application inference profiles by setting the `UseInferenceProfile` parameter to false:
+
+   **Deploy with on-demand model**:
    ```bash
    aws cloudformation create-stack \
      --stack-name link-budget-bedrock-agent-stack \
      --template-body file://bedrock-agent-template.yaml \
      --parameters \
        ParameterKey=LambdaFunctionArn,ParameterValue=arn:aws:lambda:region:account:function:link-budget-calculator \
-       ParameterKey=UseInferenceProfile,ParameterValue=true \
+       ParameterKey=UseInferenceProfile,ParameterValue=false \
      --capabilities CAPABILITY_NAMED_IAM \
      --region us-east-1
    ```
 
 3. **Customization Options (optional)**:
    ```bash
-   # Use different model with ApplicationInferenceProfile
+   # Use different model
    --parameters \
-     ParameterKey=ModelId,ParameterValue=anthropic.claude-3-7-sonnet-20250219-v1:0 \
-     ParameterKey=UseInferenceProfile,ParameterValue=true
+     ParameterKey=ModelId,ParameterValue=anthropic.claude-3-5-sonnet-20241022-v2:0 \
+     ParameterKey=UseInferenceProfile,ParameterValue=false
    
    # Custom agent name
    --parameters ParameterKey=AgentName,ParameterValue=MyLinkBudgetAgent
@@ -185,8 +186,8 @@ The agent includes one action group:
 
 ### Template Parameters
 - **AgentName**: Name for the Bedrock Agent (default: LinkBudgetAgent)
-- **ModelId**: Foundation model ID (default: Claude 3.5 Sonnet v2)
-- **UseInferenceProfile**: Whether to use ApplicationInferenceProfile (default: false)
+- **ModelId**: Foundation model ID (default: Claude 3.7 Sonnet v1)
+- **UseInferenceProfile**: Whether to use ApplicationInferenceProfile (default: true)
 - **LambdaFunctionArn**: ARN of the Lambda function
 - **AgentInstruction**: Custom instructions for the agent behavior
 
@@ -194,18 +195,18 @@ The agent includes one action group:
 
 The template supports two model configuration options:
 
-#### On-Demand Models (default)
-- Direct access to foundation models
-- Pay-per-use pricing
-- Suitable for development and low-volume usage
-- No additional setup required
-
-#### ApplicationInferenceProfile
+#### ApplicationInferenceProfile (default)
 - Creates a dedicated inference profile for your application
 - Enhanced cost management and tracking
 - Better performance isolation
 - Improved monitoring capabilities
 - Automatically configured IAM permissions for `bedrock:InvokeModel`
+
+#### On-Demand Models
+- Direct access to foundation models
+- Pay-per-use pricing
+- Suitable for development and low-volume usage
+- No additional setup required
 
 **When to use ApplicationInferenceProfile:**
 - Production deployments
@@ -284,19 +285,20 @@ link-budget/
    - Use a version of python that is compatible with the link budget python package (e.g. 3.10) 
 
 2. **Lambda Deployment Issues**:
-   - Confirm ECR repository exists
-   - Check IAM permissions for ECR and Lambda
+   - Confirm ECR repository exists - AWS Console -> ECR -> Repositories
+   - Check IAM permissions for ECR and Lambda e.g. Resource-based policy in place to allow Bedrock to invoke the Lambda function
    - Verify image URI format
 
 3. **Bedrock Agent Issues**:
-   - Ensure Lambda function ARN is correct
+   - Error "A service unavailable exception was thrown..." - try using an Inference profile instead of on-demand
+   - Ensure Lambda function ARN is correct - you can copy/paste it from the Outputs of the first CloudFormation stack 
    - Check IAM role permissions
    - Verify model availability in your region, and model access enabled
-   - An error indicating no on-demand Inference option - add the UseInferenceProfile parameter 
-   - When using ApplicationInferenceProfile, ensure the source inference profile (`us.{ModelId}`) exists in your region
+   - An error indicating no ApplicationInferenceProfile option - add the UseInferenceProfile=false parameter 
+   - When using ApplicationInferenceProfile (default), ensure the source inference profile (`us.{ModelId}`) exists in your region
 
 4. **Action Group Invocation Failures**:
-   - Check Lambda resource-based policy for Bedrock
+   - Check Lambda resource-based policy for Bedrock i.e. policy allows Bedrock to invoke the Lambda function
    - Verify function schema matches Lambda handler
    - Review CloudWatch logs for errors
 
@@ -309,7 +311,7 @@ link-budget/
 ## Cost Considerations
 
 - **Lambda**: Pay per invocation and execution time
-- **Bedrock**: Pay per input/output tokens and model usage
+- **Bedrock**: Pay per input/output tokens and model usage. A single agent execution uses <5000 tokens (input+output), which equates to a few cents. Pricing is available [here](https://aws.amazon.com/bedrock/pricing/) 
 - **ECR**: Storage costs for container images
 - **CloudWatch**: Log storage and retention costs
 
