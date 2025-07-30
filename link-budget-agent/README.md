@@ -59,7 +59,9 @@ The Lambda function is built as a container image and uses the open-source [link
 
    A docker container image is used for the lambda function instead of a [.zip file archive](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html) because the size of the dependencies for the link-budget package exceeds 250Mb.
 
-   Use one of the build-and-deploy options below as per your AWS region, hardware platform etc.
+> [!NOTE]
+> The first invocation of this Lambda function, can experience a delay known as a "cold start", because the Lambda service needs to prepare a new execution environment
+> for the function, unpacking the container image. Subsequent invocations do not experience this issue.
 
    ```bash
    # Make the script executable
