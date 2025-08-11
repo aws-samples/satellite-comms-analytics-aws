@@ -16,8 +16,6 @@ The solution consists of:
 - **Action Group**: Connects the agent to the Lambda function with defined parameters
 - **CloudFormation Templates**: Infrastructure as Code for automated deployment
 
-<img width="487" height="393" alt="link-budget-calc-arch drawio" src="https://github.com/user-attachments/assets/11038933-2d1f-4863-9e53-12e209ca3bb9" />
-
 ## Getting Started
 
 If you have not already done so, clone the `satellite-comms-forecast-aws` repository and change into the link-budget-agent directory:
