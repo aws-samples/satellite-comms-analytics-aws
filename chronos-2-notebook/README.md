@@ -25,18 +25,20 @@ The notebook `satcom-chronos-forecast.ipynb` implements time series forecasting 
 1. Clone this top-level repository
 2. Install the required packages (already done in the Jupyter notebook):
 
+## Permissions
+The default IAM profile for SageMaker Studio should suffice. It contains the `AmazonSageMakerFullAccess` policy.
+This notebook also pulls training & test data from Amazon S3 - `AmazonS3FullAccess` policy is also included 
+in the default IAM profile.
+
 ## Usage
 The notebook can be run in multiple environments:
 - Amazon SageMaker Studio Lab
 - Local Jupyter environment
 
 To run the notebook:
-
-Open satcom-chronos-forecast.ipynb
-
-Follow the step-by-step instructions in the notebook
-
-Execute each cell in sequence
+- Open satcom-chronos-forecast.ipynb
+- Follow the step-by-step instructions in the notebook
+- Execute each cell in sequence (or click `Run All`)
 
 ## Features
 - Time series based forecasting with multiple related variables
@@ -51,7 +53,7 @@ Update the following for your own use-case: -
 - test_key         # Replace with your test file path in S3
 
 - target           # Column name containing the values to forecast 
-- prediction_length   # 1 day (6 x 10 mins x 24)
+- prediction_length   # e.g. 1 day (6 x 10 mins x 24)
 - id_column        # Column identifying different time series 
 - timestamp_column # Column containing datetime information
 
