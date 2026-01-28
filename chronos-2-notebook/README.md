@@ -11,6 +11,8 @@ The notebook `satcom-chronos-forecast.ipynb` implements time series forecasting 
 - Extended context length up to 8192 time steps
 - Fine-tuning capabilities
 
+<img width="986" height="344" alt="image" src="https://github.com/user-attachments/assets/a5eddc7f-e83c-4185-8e4c-192e40a55a91" />
+
 ## Prerequisites
 
 - Python 3.x
