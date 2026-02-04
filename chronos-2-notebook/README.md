@@ -26,7 +26,7 @@ The traditional Machine Learning based approach can be found in the [SageMaker A
 | **Explainability**    | No (black-box model) | Explains which covariates have most impact |
 | **Metrics**           | WAPE, PICP, wQL, RMSE etc | Same |
 | **Adaptability**      | Easy prompt modifications | Model retraining required      |
-| **Determinism**       | Probabilistic | Yes. Outputs a single "best guess" |
+| **Determinism**       | Provides probabilistic forecast rather than single-point predictions | Yes. Outputs a single "best guess" |
 
 ## Prerequisites
 
