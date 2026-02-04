@@ -23,7 +23,7 @@ The traditional Machine Learning based approach can be found in the [SageMaker A
 | **Data Requirements** | Few examples              | Large labeled datasets         |
 | **Expertise Needed**  | Basic AWS knowledge       | ML/Data science expertise      |
 | **Scalability**       | Immediate                 | Requires periodic model retraining      |
-| **Explainability**    | Limited.  | Explains which covariates have most impact |
+| **Explainability**    | No (black-box model) | Explains which covariates have most impact |
 | **Metrics**           | WAPE, PICP, wQL, RMSE etc | Same |
 | **Adaptability**      | Easy prompt modifications | Model retraining required      |
 | **Determinism**       | Probabilistic | Yes. Outputs a single "best guess" |
