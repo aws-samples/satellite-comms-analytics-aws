@@ -13,6 +13,22 @@ The notebook `satcom-chronos-forecast.ipynb` implements time series forecasting 
 
 <img width="986" height="344" alt="image" src="https://github.com/user-attachments/assets/a5eddc7f-e83c-4185-8e4c-192e40a55a91" />
 
+## Comparison with Traditional ML Approach
+
+The traditional Machine Learning based approach can be found in the [SageMaker AutoPilot Notebook](../../autopilot-notebook)
+Customers can decide which methodology to used based on the aspects below.
+
+| Aspect                | Generative AI Solution    | Traditional ML Solution        |
+| --------------------- | ------------------------- | ------------------------------ |
+| **Setup Time**        | Minutes (no training)     | Hours/Days (requires training) |
+| **Data Requirements** | Few examples              | Large labeled datasets         |
+| **Expertise Needed**  | Basic AWS knowledge       | ML/Data science expertise      |
+| **Scalability**       | Immediate                 | Requires periodic model retraining      |
+| **Explainability**    | Limited.  | Explains which covariates have most impact |
+| **Metrics**           | WAPE, PICP, wQL, RMSE etc | Same |
+| **Adaptability**      | Easy prompt modifications | Model retraining required      |
+| **Determinism**       | Probabilistic | Yes. Outputs a single "best guess" |
+
 ## Prerequisites
 
 - Python 3.x
