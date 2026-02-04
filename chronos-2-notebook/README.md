@@ -15,7 +15,7 @@ The notebook `satcom-chronos-forecast.ipynb` implements time series forecasting 
 
 ## Comparison with Traditional ML Approach
 
-The traditional Machine Learning based approach can be found in the [SageMaker AutoPilot Notebook](../../autopilot-notebook)
+The traditional Machine Learning based approach can be found in the [SageMaker AutoPilot Notebook](../autopilot-notebook/README.md)
 Customers can decide which methodology to used based on the aspects below.
 
 | Aspect                | Generative AI Solution    | Traditional ML Solution        |
