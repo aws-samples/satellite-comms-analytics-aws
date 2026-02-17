@@ -1,183 +1,26 @@
-## Predicting satellite communications capacity with Amazon SageMaker
+## Satellite Communications Analytics on AWS
 
 ### Description
-This repository contains sample code to demonstrate Satellite Communications Forecasting use-cases. The associated blog 
-is [here](https://aws.amazon.com/blogs/publicsector/maximizing-satellite-communications-usage-with-amazon-forecast/).
+This repoistory contains pipelines to demonstrate Satellite Communications Analytics use-cases.
+It is intended to leverage AWS Serverless Analytics to show how to get Insights on key KPIs
+e.g. SNR, Modulataion & Coding Rates. Additionally Machine Learning (Sagemaker) is 
+used to detect anomalies.
 
-It focuses on a Maritime shipping use-case, using [Amazon Forecast](https://aws.amazon.com/forecast/) to build a time
-series predictor model for each satellite beam in the ship(s) path, accounting for the impact of weather
-conditions in a given location. It then renders results in [Amazon QuickSight](https://aws.amazon.com/quicksight/) BI tooling, displaying
-forecasted capacity needs, accuracy metrics, and which attributes most impact the model.
+### AWS Technologies used
 
-This [repository](#Repository-Structure) also includes a [chatbot](https://github.com/aws-samples/satellite-comms-forecast-aws/tree/main/satcom-autopilot-chatbot) to retrieve satellite capacity forecasts which also incorporates an RF interference multi-modal Gen AI detection solution.
-In addition a [link-budget calculator](https://github.com/aws-samples/satellite-comms-forecast-aws/tree/main/link-budget-agent) using agentic Gen AI is available as a reference for SatCom customers to start their own Gen AI workloads.
+One of the key goals of this SatCom assets repository is to leverage AWS Serverless Analytics
 
-> [!IMPORTANT]
-> New users should start with the SageMaker Autopilot Timeseries [notebook](autopilot-notebook/README.md) version
-> for faster training times, lower cost, and model flexibility
-
-![Capture_fig1](https://github.com/aws-samples/satellite-comms-forecast-aws/assets/122999933/f3b789fa-ffbb-4a66-976e-353059e804e0)
-
-Multiple factors such as weather and the geographical location of the vessel in the beam impact data rates and therefore the 
-usage of satellite capacity bandwidth. 
-
-Satellite Operators would like advance notice of capacity needs to plan out allocation, enabling the most efficient distribution 
-of satellite capacity. This is where [Amazon SageMaker Autopilot Timeseries](https://docs.aws.amazon.com/sagemaker/latest/dg/autopilot-create-experiment-timeseries-forecasting.html) provides 
-great benefit. The model can predict future capacity needs per beam leveraging 
-historical bandwidth usage data and related time series such as weather metrics.
-
-An accurate forecasting strategy can lead to lower costs (higher bandwidth utilization), and higher passenger 
-satisfaction (e.g. successful capacity handling of demand surges). 
-
-### Repository Structure
-
-```
-satellite-comms-forecast-aws/
-├── autopilot-notebook/              # Recommended start point for capacity forecasting
-├── satcom-timeseries-autopilot-gen-fxn/     # Lambda fxn to generate training data for the model
-├── satcom-timeseries-datagen-cfn.yaml       # generate Lambda for Sage Autopliot timeseries data-gen
-├── noaa-ndbc-weather-fxn/           # Lambda fxn to parse NOAA Buoy files for air-pressure
-├── noaa-ndbc-weather-cfn.yaml       # generate Lambda to parse NOAA Buoy files for air-pressure
-
-├── forecast-notebook/              # (legacy) Previous notebook based on Amazon Forecast
-├── satcom-forecast-datagen-fxn/    # Lambda fxn to generate training data for the model
-├── satcom-forecast-datagen-cfn.yaml         # generate Lambda for Forecast timeseries data-gen
-
-├── satcom-autopilot-chatbot/       # GenAI-based chatbot handling sat capacity requests
-
-├── link-budget-agent/              # GenAI Agent to calculate satellite link budget
-
-└── README.md                       # This README file
-```
-
-### Satellite bandwidth and weather data generation
-
-The target time-series (TTS) data set required to predict future satellite capacity bandwidth needs is historical usage across
-each spot-beam over a period of time. 
-Related datasets (RTS) are optional but serve to improve the model accuracy e.g. weather has a correlation with achievable data rates
-hence supplying weather data points, particularly severe weather, helps the Predictor.
-
-We supply 14 days of historical and related time series data at 10-minute intervals. Why do we need so much? 
-In general the model accuracy improves with more data however more specifically we want to identify any 
-day of week or hour of day patterns such as the daily sea breeze effect in summer in Florida, US. 
-
-A [lambda function](satcom-forecast-datagen-fxn/lambda_function.py) is provided to generate the TTS and RTS datasets.
-Surge capacity windows and severe weather troughs are applied to subsets of the data to validate that Forecast can
-produce a model capable of handling typical SatCom scenarios such as congestion, ["rain fade"](https://en.wikipedia.org/wiki/Rain_fade) etc
-
-A [Cloudformation template](https://aws.amazon.com/cloudformation/) is supplied to deploy the lambda function automatically with the 
-appropriate permissions. A pre-requisite is to supply the lambda as a zip file in an S3 bucket so that CloudFormation can reference it
-(the alternative is embedding the code in the YAML itself which can get a bit unwieldy!). Edit the path (folder) to the code zip 
-in the CFN parameter settings as appropriate. 
-
-The results in csv, are posted to [Amazon S3](https://aws.amazon.com/s3/). It is suggested to create a folder structure similar to below. This enables 
-Forecast Dataset import jobs to target the specific set of TTS or RTS files.
-- satcom-forecast-bkt-12345/
-  - dataset/
-    - tts/
-    - rts/
-  
-An [additional lambda function](noaa-ndbc-weather-fxn/lambda_function.py) is provided to parse 
-National Oceanic and Atmospheric Administration [National Data Buoy Center](https://www.ndbc.noaa.gov/) 
-historical and real-time datasets e.g. [Station 41043](https://www.ndbc.noaa.gov/data/realtime2/41043.txt)
-
-<img src="https://www.ndbc.noaa.gov/images/stations/3mfoam_scoop.jpg" width=25% height=25%>
-
-The key element is air-pressure (hPa) - a value below 990 indicates potentially severe weather. In the lambda, we peel out 
-timestamp and air-pressure and then append day-of-week and hour-of-day to determine if there are any cyclical trends
-the model can identify. 
-
-Results are also posted to Amazon S3, under the rts/ folder. 
-
-A CloudFormation template is also supplied for this [NOAA buoy parsing lambda function](noaa-ndbc-weather-fxn/lambda_function.py).
-A sample set of buoy data [(station 41043)](https://www.ndbc.noaa.gov/station_realtime.php?station=41043) is supplied. 
-You can get new datasets via wget at https://www.ndbc.noaa.gov/faq/rt_data_access.shtml
-The CFN parameters are similar to the previous lambda - however in this case we also add the buoy sample data file to the zipfile. 
-
-To improve the quality of the model there are several additional RTS datasets which could be injected such as: -
-* more accurate weather forecast data using eg [Accuweather APIs](https://developer.accuweather.com/)
-* lost-lock activity e.g. if the communications link was broken at specific times in particular beams
-* Carrier-to-Noise ratio (C/N), a measure of the received carrier strength relative to noise. 
-
-
-### Satellite Capacity Forecast notebook workflow
-
-The entire set of operations can be done in the console, however a [Jupyter notebook](forecast-notebook/satcom-forecast-notebook.ipynb) is provided 
-to automate the sequence of following events: -
-
-![Amazon Forecast Workflow](https://github.com/aws-samples/amazon-forecast-samples/raw/main/notebooks/basic/Getting_Started/images/workflow.png)
-
-First up, is getting the correct permissions. An IAM role with full S3 access and Forecast access is required. 
-
-Next, historical bandwidth (TTS) and weather data (RTS) for 4 different spot-beams along the ship's route are imported to Amazon Forecast. Important variables
-to modify are the DATASET_FREQUENCY, schema(s), and the key (csv file or a folder/ in your S3 bucket). Since satellite bandwidth usage is dynamic, we set 
-the DATASET_FREQUENCY to "10min". The schema, supplied in JSON, is different for TTS versus RTS: -
-
-*Historical bandwidth usage data*
-| Attribute      | Type     | Description |
-| -------------- | ----------- | ----------- |
-| timestamp  | timestamp | 10 min intervals in format yyyy-MM-dd HH:mm:ss |
-| target_value | float | Satellite bandwidth usage historical data (MHz) |
-| item_id | string | Spot-beam eg SpotH7, SpotH12 etc |
-
-*Weather historical and forecast data*
-| Attribute      | Type     | Description |
-| -------------- | ----------- | ----------- |
-| timestamp  | timestamp | 10 min intervals in format yyyy-MM-dd HH:mm:ss |
-| air_pressure | integer | Barometric pressure of buoy in a given spot beam footprint |
-| item_id | string | Spot-beam eg SpotH7, SpotH12 etc |
-| day_of_week | string | Does day of week influence the model? |
-| hour_of_day | string | Does hour of day influence the model? |
-
-When the import(s) are complete, the notebook will return the job ARN with a status of ACTIVE.
-
-The predictor step is then triggered. Be sure to set the FORECAST_HORIZON correctly. This is the number of time steps being forecasted. 
-In our use-case the horizon is 144 ie 1 day (10 min granularity : 6 * 24)
-
-We use an [AutoPredictor](https://docs.aws.amazon.com/forecast/latest/dg/howitworks-predictor.html) model whereby each time 
-series can receive a bespoke recipe – a blend of
-predictions underlying up to 6 different statistical and deep-learning models improving accuracy at every series.
-The net effect is higher accuracy, as outlined in the notebook section "Review accuracy metrics".
-
-Our primary accuracy metric for this use-case is the P90 Weighted Quantile Loss (WQL), which indicates the
-confidence level of the true value being lower than the predicted value 90% of the time. This is
-important because Satellite Operators typically want to slightly overprovision ensuring consumers have
-enough bandwidth the majority of the time. 
-
-Finally, a forecast is generated with results exported to S3 for further ingestion by BI tools.
-A sample plot for SpotH12's next 24 hours capacity forecast at a P90 WQL is presented below: -
-
-![Capture_spoth12_forecast](https://github.com/aws-samples/satellite-comms-forecast-aws/assets/122999933/2fc00b47-27f2-44ab-b045-735d94dd9826)
-
-Simply change the ITEM_ID to query your target item of interest.
-
-Additional metrics such as predictor explainability are also exported to S3 - this helps us refine the model
-by placing more emphasis on 1 RTS variable over another.
-
-This completes the workflow. 
-
-To terminate all Forecast assets uncomment the "Clean-up" section
-
-
-## Alternate method - SageMaker Autopilot Timeseries
-
-The same forecasting algorithms, ensembling techniques, explainability can now be done via
-SageMaker Autopilot timeseries. 
-
-The benefits of SageMaker Autopilot Timeseries over Amazon Forecast are: -
-* accuracy metrics for all (6) algorithms leveraged in the AutoPredictor
-* faster training time
-* select which model to use (best candidate or otherwise)
-* lower cost (particularly with Real Time Inference) 
-
-It is therefore strongly recommended to use SageMaker Autopilot Timeseries over Amazon Forecast
-for new prediction use-cases.
-
-A Jupyter notebook demonstrating how to perform satellite capacity forecasting
-with SageMaker Autopilot is [here](./autopilot-notebook/satcom-autopilot-notebook.ipynb)
-along with a complete [README](./autopilot-notebook/README.md)
-
-
+* Amazon Kinesis Data Streams 
+* Amazon Kinesis Data Firehose
+* AWS Lambda
+* AWS Glue
+* Amazon Athena
+* Amazon QuickSight
+* Amazon Opensearch Service
+* Amazon Sagemaker
+* Amazon S3
+* Amazon CloudWatch
+* AWS CloudFormation
 
 ## Security
 
@@ -186,3 +29,142 @@ See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more inform
 ## License
 
 This library is licensed under the MIT-0 License. See the LICENSE file.
+
+## Analytics Pipelines
+
+This github repository and associated Blog contains artifacts for 3 pipelines: -
+* Streaming to a data lake, ETL transformation, Business Intelligence
+* Real-Time Monitoring and geo-mapping in Amazon OpenSearch
+* Train a model with SageMaker and deploy a Serverless Inference
+
+The first pipeline is fully described in the Blog post, to allow readers to walk through
+the process via the article itself. The HowTo for the 2nd and 3rd pipelines are described here 
+to keep the Blog post smaller. 
+
+### Pipeline 2 – Real-Time Monitoring in Amazon OpenSearch
+
+![idx-kinesis-opensearch](https://user-images.githubusercontent.com/122999933/220422882-4d2cbd49-3458-44e2-b817-aa1ad5ae8609.png)
+
+This figure represents a Reference Architecture for Real-Time streaming of metrics to [Amazon OpenSearch](https://aws.amazon.com/opensearch-service/), an open source, distributed search and analytics suite derived from Elasticsearch. Widgets such as heat-maps and geo-mapping can be added via the popular Kibana user interface to rapidly create rich Business Analytics dashboards
+
+To deploy this solution in your own AWS account, click “Create stack (with new resources)” in the AWS CloudFormation console. Next, download  [streaming_kinesis_lambda_osearch.yaml](./streaming_kinesis_lambda_osearch.yaml) template, select “Upload a template file” & browse to the yaml file. 
+The parameters for this CloudFormation template are as shown in the table below: -
+
+| Parameter      | Default     | Description |
+| -------------- | ----------- | ----------- |
+| LambdaZipName  | kds-scripts/satcom-wshop-rt-geo-lambda.zip | Name of the Kinesis Data Streams Lambda zip file |
+| OpenSearchAllowedIPs |         | Comma-delimited list of IP addresses accessing OpenSearch domain |
+| SatComAssetsS3Bucket |         | Holds helper assets eg Glue python transforms |
+
+The Lambda function is referenced in the same fashion as Pipeline 1, via a Zip file in an S3 bucket. Simply zip up the python function [here](./kds-scripts/lambda_function.py) and add it to the S3 bucket similar to the kds-scripts/<name-of-file>.zip parameter supplied above.
+
+The OpenSearchAllowedIPs parameter can simply be your public IPv4 IP as detected by https://www.whatismyip.com/. Bear in mind this IP can change based on your Internet Service Provider (ISP) hence you can enter several IPs or CIDR ranges via a comma-delimited list. 
+
+The SatComAssetsS3Bucket can/should be the same as the assets bucket used in Pipeline 1. 
+  
+There is one additional factor to be considered. The Lambda runtime cannot contain all possible libraries and dependencies a given function may need. In order to submit indices to OpenSearch via the AWS Python SDK we need the requests_aws4auth and the opensearchpy modules. [Lambda layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html) provide a convenient way to package these libraries via a .zip file archive. 
+  
+For simplicity we bundle both of these modules into a single .zip layer as follows in a Linux terminal: -
+
+```
+[>] mkdir requests_opensearchpy_layer
+[>] cd requests_opensearchpy_layer/
+[>] mkdir python
+[>] pip install --target ./python requests
+[>] pip install --target ./python requests_aws4auth
+[>] pip install --target ./python opensearch-py
+[>] zip -r requests_opensearchpy_layer.zip python
+[>] aws lambda publish-layer-version --layer-name requests_opensearchpy_layer --zip-file fileb://requests_opensearchpy_layer.zip --compatible-runtimes python3.8 python3.9 --region <YOUR-AWS-REGION>
+[>] aws s3 cp requests_opensearchpy_layer.zip s3://<YOUR-S3-ASSETS-BUCKET>/kds-scripts/
+```
+
+Demystifying these steps we firstly create a layer directory, with (importantly!) a python subdirectory. Then we use the [Python package manager](https://pypi.org/project/pip/), pip, to install the requests, requests_aws4auth, and the opensearch-py modules. Next we zip it up and publish the Lambda layer specifying which Python runtime versions it has been tested with. Finally we copy the zipped layer to the S3 bucket so that we can reference it as an S3Key in our CloudFormation deployment template. 
+  
+Your S3 bucket folder should now look similar to the figure below: -
+
+![Capture_osearch_S3_kds_blur](https://user-images.githubusercontent.com/122999933/220426956-1f11c945-b63d-4e77-8432-bd1d1afb00f6.png)
+
+You are now ready to deploy the stack. Click Next, acknowledge the IAM resources creation, and click Submit. It will take 5-10 minutes to complete the deployment of all the AWS resources. 
+
+The Kinesis Data Generator tool can also be used to input data to Kinesis Data Streams. Using the same satellite beam JSON record template as Pipeline 1, select the newly deployed Kinesis stream. Click “Send data” using any one of the 3 Beam record templates. Stop the data generation after approximately 1000 records. 
+  
+![Capture_KDG_osearch](https://user-images.githubusercontent.com/122999933/220427249-3eb5c9f1-2d61-4d4f-a7c5-0b3228b74d78.PNG)
+
+Recall from Figure 10 that the stream triggers a Lambda function to postprocess the data into geo-mapping location coordinates for the OpenSearch dashboard. Let’s check the log files via Amazon CloudWatch to ensure the Lambda executed correctly. One way to navigate there is to look at the CloudFormation “Resources” tab. Click the Physical ID URL link of the Lambda Function. Next Click “Monitor” and “View CloudWatch Logs” – this takes you directly to the Log stream for the pipeline’s Lambda transformation. The Log streams should look similar to the figure below: -
+  
+![Capture_CW_osearch_blur](https://user-images.githubusercontent.com/122999933/220427425-9b7344f3-011b-4ad0-8ffd-610e3096bd07.png)
+
+Next, navigate to OpenSearch via the AWS Console. There should be a Domain endpoint generated by the CloudFormation template. Clicking on this endpoint should display a JSON blob with the cluster name, version number etc.
+  
+*Troubleshooting tip*: If you get an error at this stage your IP may have changed versus what was entered in the CloudFormation parameters. 
+
+Click on the “Indices” tab – you should see a Document count corresponding to the total number of records processed by the Lambda function.
+
+Finally we are ready to construct our Satellite Communications Analytics OpenSearch dashboard. Click on the OpenSearch dashboards URL. The dashboard in Figure 11 can be created relatively quickly. For example to create the Number of Data points visual, click “Visualize” in the left hand menu -> Create visualization -> Metric -> select the index we created. It will then show the Count of samples. To create the Geo visualization select Coordinate map and configure the Metrics of interest against the Geo coordinates location field e.g. 
+
+![Capture_Geo_osearch_viz](https://user-images.githubusercontent.com/122999933/220427755-81260119-1c51-490f-9f8c-26690fffffb6.PNG)
+
+### Pipeline 3 – Detect Anomalies using Amazon SageMaker Random Cut Forest
+Pipeline 3 demonstrates using the SageMaker [Random Cut Forest Algorithm](https://docs.aws.amazon.com/sagemaker/latest/dg/randomcutforest.html) to detect anomalous SNR values within our dataset. The algorithm is deployed to a [SageMaker Serverless Inference](https://docs.aws.amazon.com/sagemaker/latest/dg/serverless-endpoints.html) Endpoint. The detected SNR value anomalies are written to S3 for archival. The following figure represents the architecture used in this pipeline
+
+![pipeline_3_architecture](https://user-images.githubusercontent.com/123971998/223513301-3985202d-9265-458a-bbc6-77e868104b56.png)
+
+
+The environment which will be used to run the Jupyter [Notebook](https://github.com/aws-samples/satellite-comms-analytics-aws/blob/main/sagemaker-notebook/random_cut_forest_workshop.ipynb) file is SageMaker Studio. [SageMaker Studio](https://aws.amazon.com/sagemaker/studio/) is a web-based Integrated Development Environment (IDE) to prepare data, build, train, deploy, and monitor your machine learning models. The [first time opening SageMaker Studio](https://docs.aws.amazon.com/sagemaker/latest/dg/notebooks.html) will require users to create a Domain and an Execution role. Once SageMaker Studio is configured and open, we import the Notebook file and specify the Data Science kernel and an instance type of ml.t3.medium as seen in the following Figure.
+  
+![pipeline_3_notebook_selection](https://user-images.githubusercontent.com/123971998/223513109-f929c02a-3748-420b-99bc-221c630d29c5.png)
+
+  
+Within the Notebook file, the first thing which needs to be validated is [SageMaker Execution Role](https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-roles.html) permissions. The role needs to be able to read from the S3 Output Bucket from the previous section. Additionally, write permissions are required for the SageMaker Session default bucket.
+
+Next, we will reference the S3 Output Bucket for import. The Glue transformed data is represented as timeseries data configured in JSON lines files. Depending on how much data was generated using the Kinesis Data Generator, there may be multiple part files. We need to specify BUCKET_NAME and BUCKET_PREFIX displayed in the following code block. It’s important to note the prefix path will point to the location of the files so that multiple files at that location can be imported.
+  ```
+  # *** Edit the following bucket name and prefix to read the json lines part files *** 
+downloaded_data_bucket = "BUCKET_NAME"
+# To read multiple part files, specify the prefix leading to the files, ex. "year=2022/month=12/day=21/hour=16/"
+downloaded_data_prefix = "BUCKET_PREFIX"
+```
+After importing the data, we plot the SNR value timeseries data which is displayed in the following Figure. We expect anomalies to be when the SNR value drops to -100. To further prepare the data, we convert to a [Pandas Dataframe](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html). This conversion simplifies the input to the SageMaker Random Cut Forest Algorithm. The parameters have been set for the given example; however, they will need to be configured to reflect the data when applied to other datasets. As seen in the following code block, we call the fit function while passing in the dataset. This initiates a [SageMaker Training Job](https://docs.aws.amazon.com/sagemaker/latest/dg/how-it-works-training.html).
+  
+![pipeline_3_value_plot](https://user-images.githubusercontent.com/123971998/223522225-05104f32-e5d3-4e74-a599-c19ccce59ad7.png)
+
+
+```
+# automatically upload the training data to S3 and run the training job
+rcf.fit(rcf.record_set(satcom_data.value.to_numpy().reshape(-1, 1)))  
+```
+  
+After the Training Job is complete, we deploy the model to a Serverless Inference Endpoint. Serverless Inference allows you to easily deploy Machine Learning models without configuring or managing any of the underlying infrastructure. SageMaker will automatically provision, scale, and turn off compute capacity based on the volume of inference request. This means you pay only for the duration of running the inference code and amount of data processed, not for idle periods. For this example, we have allocated 2048MB and specified a max concurrency of 5. See the following resource for more information about [configuring Serverless Inference](https://docs.aws.amazon.com/sagemaker/latest/dg/serverless-endpoints.html#serverless-endpoints-how-it-works-memory). 
+
+Next, we use the trained model to identify anomalies in the dataset. Shown in the following code block, we call the predict function which generates an anomaly score for the SNR values. We overlay the anomaly scores against the SNR values which shows a jump in anomaly score value when the SNR value drops to -100. This is visualized in the following Figure. We can set a threshold based on Standard Deviation and add to our plot to visualize exactly where anomalies are.
+```
+results = rcf_inference.predict(satcom_data_numpy)  
+```  
+![pipeline_3_value_anomaly_plot](https://user-images.githubusercontent.com/123971998/223522043-5b1bd909-be51-465a-9514-48f0edec4e08.png)
+
+  
+Lastly, we write the anomalies to S3 as JSON lines format as seen in the following Figure. For an additional exercise, [S3 Event Notifications](https://docs.aws.amazon.com/AmazonS3/latest/userguide/NotificationHowTo.html) can be configured so that downstream applications or alerts can be triggered to execute when the anomalies are written to S3. Additional future exercises might include building on the SageMaker Serverless Inference Endpoint by [integrating with API Gateway and Lambda](https://aws.amazon.com/blogs/machine-learning/call-an-amazon-sagemaker-model-endpoint-using-amazon-api-gateway-and-aws-lambda/). The last step in the Notebook involves cleaning up the SageMaker Serverless Inference Endpoint.
+ 
+![pipeline_3_anomalies](https://user-images.githubusercontent.com/123971998/223512838-88b65695-4a8c-49a0-a22f-1cccecfe25b2.png)
+
+### Troubleshooting
+
+#### CloudFormation Error
+
+```
+Your access has been denied by S3, please make sure your request credentials have permission to GetObject for satcom-pipeline-assets/kdf-scripts/satcom-wshop-kdf-lambda-py.zip. S3 Error Code: AccessDenied.
+```
+
+Ensure you have specified your assets bucket as the SatComAssetsS3Bucket parameter of the CloudFormation template. Use the KdfLambdaZipName parameter to specify the bucket key which maps to the zipped version of kdf-scripts/lambda_function.py.
+
+#### Kinesis Data Generator - No Stream/delivery stream
+
+The Kinesis Data Firehose and Kinesis Data Stream delivery targets will be available after the respective CloudFormation templates have been created.
+
+#### KDS Process Lambda Error
+
+```
+[ERROR] Runtime.ImportModuleError: Unable to import module 'lambda_function': cannot import name 'DEFAULT_CIPHERS' from 'urllib3.util.ssl_' (/opt/python/urllib3/util/ssl_.py)
+```
+
+When creating the Lambda layer in Pipeline 2, consider using a Python [virtual environment](https://docs.python.org/3/library/venv.html#module-venv) and adding botocore to the layer. The python version used to make the layer should also be used as the Lambda Python Runtime. For example, if Python3.11 is used to create the layer, the Lambda Python Runtime should also use 3.11.
